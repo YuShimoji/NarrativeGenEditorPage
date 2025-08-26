@@ -26,6 +26,17 @@ const mime = {
   '.txt': 'text/plain; charset=utf-8'
 };
 
+const projectRoot = path.resolve(__dirname, '..');
+const urlFile = path.join(projectRoot, 'preview-url.txt');
+const pidFile = path.join(projectRoot, `serve-simple-${port}.pid`);
+const readyFile = path.join(projectRoot, `serve-simple-${port}.ready`);
+const hbFile = path.join(projectRoot, `serve-simple-${port}.hb`);
+const startupLog = path.join(projectRoot, 'serve-simple-startup.log');
+
+function safeWrite(file, data) {
+  try { fs.writeFileSync(file, data); } catch (_) {}
+}
+
 const server = http.createServer((req, res) => {
   const u = url.parse(req.url, true);
   if (u.pathname === '/healthz' || u.pathname === '/health') {
@@ -68,6 +79,33 @@ const server = http.createServer((req, res) => {
   res.end('<!doctype html><html><body><h1>Novel Editor Preview (simple)</h1><p>Server is running on ' + port + '</p><p>Try: <a href="/healthz">/healthz</a></p></body></html>');
 });
 
-server.listen(port, '0.0.0.0', () => {
-  console.log('[serve-simple] listening on http://127.0.0.1:' + port + (hasDist ? ' (serving dist/)' : ''));
+server.on('error', (err) => {
+  try { console.error('[serve-simple] server error:', err); } catch (_) {}
+  process.exit(1);
 });
+
+server.listen(port, '127.0.0.1', () => {
+  const urlText = 'http://127.0.0.1:' + port;
+  console.log('[serve-simple] listening on ' + urlText + (hasDist ? ' (serving dist/)' : ''));
+  safeWrite(urlFile, urlText + '\n');
+  safeWrite(pidFile, String(process.pid));
+  safeWrite(readyFile, String(Date.now()));
+  try { fs.appendFileSync(startupLog, new Date().toISOString() + ' up pid=' + process.pid + ' url=' + urlText + '\n'); } catch (_) {}
+});
+
+// heartbeat
+const hbTimer = setInterval(() => {
+  safeWrite(hbFile, String(Date.now()));
+}, 5000);
+
+function cleanup() {
+  try { clearInterval(hbTimer); } catch (_) {}
+  try { fs.unlinkSync(pidFile); } catch (_) {}
+  try { fs.unlinkSync(hbFile); } catch (_) {}
+}
+
+process.on('SIGINT', () => { cleanup(); process.exit(0); });
+process.on('SIGTERM', () => { cleanup(); process.exit(0); });
+process.on('exit', () => { cleanup(); });
+process.on('uncaughtException', (e) => { try { console.error('[serve-simple] uncaughtException', e); } catch (_) {} });
+process.on('unhandledRejection', (e) => { try { console.error('[serve-simple] unhandledRejection', e); } catch (_) {} });

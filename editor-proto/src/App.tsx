@@ -6,6 +6,8 @@ import Image from '@tiptap/extension-image'
 import { useEditorStore } from './store/useEditorStore'
 import { Preview } from './components/Preview'
 import { ChoiceButton } from './extensions/choiceButton'
+import { SlashCommands } from './extensions/slashCommands'
+import { ZenIndicator } from './components/ZenIndicator'
 
 export default function App() {
   const setDoc = useEditorStore((s) => s.setDoc)
@@ -19,6 +21,7 @@ export default function App() {
       Placeholder.configure({ placeholder: 'ここに物語を記述… /image, /choice などを試せます（実装中）' }),
       Image,
       ChoiceButton,
+      SlashCommands,
     ],
     content: '<p>ようこそ。ここからZenエディタのプロトを始めます。</p>',
     autofocus: 'end',
@@ -94,6 +97,7 @@ export default function App() {
       <div className="pane pane-preview" style={{ display: zen ? 'none' : 'block' }}>
         <Preview />
       </div>
+      <ZenIndicator />
     </div>
   )
 }

@@ -1,38 +1,56 @@
-# プレビュー起動手順（安定運用版）
+# プレビュー起動手順（最短・安定）
 
 最終更新: 2025-08-26
 
-## 方針
-- 開発サーバー（HMR付き）は環境依存で終了/切断する場合があるため、まずは静的配信で安定表示を優先します。
-- 本手順は Windows 環境で Node と npm の絶対パス呼び出しを前提にしています。
+本手順は「ダブルクリックで起動・停止」を最優先に簡素化しています。IDEの承認や複数系統のフォールバック操作は不要です。
 
-## 1) 依存とビルド
-- 依存復元（必要時）
-  - `"C:\\Program Files\\nodejs\\npm.cmd" ci`
-- ビルド
-  - `"C:\\Program Files\\nodejs\\node.exe" .\\node_modules\\vite\\bin\\vite.js build --clearScreen false`
+## 使うファイル
+- 起動（ビルド込み）: `editor-proto/scripts/preview-build-start.cmd`
+- 起動（ビルドなし）: `editor-proto/scripts/preview-start.cmd`
+- 前面起動（デバッグ用）: `editor-proto/scripts/preview-start-foreground.cmd`
+- 停止: `editor-proto/scripts/preview-stop.cmd`
 
-## 2) 安定プレビュー（推奨）
-- 簡易HTTPサーバー（依存なし）
-  - npm スクリプト: `npm run serve:simple`（`package.json` の `scripts.serve:simple`）
-  - 既定ポート: 5192
-  - ヘルスチェック: `http://127.0.0.1:5192/healthz`
-  - 配信元: `editor-proto/dist/`（存在すれば）
+既定ポート: 5194
 
-- Vite の静的プレビュー
-  - 例: `"C:\\Program Files\\nodejs\\node.exe" .\\node_modules\\vite\\bin\\vite.js preview --host 0.0.0.0 --port 5180 --clearScreen false`
+## 起動（推奨: ビルド込み）
+1. エクスプローラーで `editor-proto/scripts/preview-build-start.cmd` をダブルクリック
+2. 自動で以下が実行されます
+   - Viteビルド → 既存プロセス停止 → 簡易HTTPサーバー起動（5194） → 既定ブラウザで `http://127.0.0.1:5194` を開く
+3. ヘルスチェック（任意）: `http://127.0.0.1:5194/healthz` → `ok` が表示されれば稼働中
 
-## 3) 開発サーバー（必要に応じて）
-- 例: `"C:\\Program Files\\nodejs\\node.exe" .\\node_modules\\vite\\bin\\vite.js --host 127.0.0.1 --port 5175 --strictPort --clearScreen false`
-- 切断が発生する場合は静的プレビューに切り替えてください。
+## 前面起動（デバッグ用）
+1. `editor-proto/scripts/preview-start-foreground.cmd` をダブルクリック
+2. コンソールに次の行が出れば起動成功です
+   - `[serve-simple] listening on http://127.0.0.1:5194 (serving dist/)`
+3. 任意の疎通確認（PowerShell）
+   ```powershell
+   try {
+     $r = Invoke-WebRequest -UseBasicParsing 'http://127.0.0.1:5194/healthz'
+     $r.StatusCode; $r.Content  # 期待: 200 と ok
+   } catch { $_.Exception.Message }
+   ```
+4. 補助確認（LISTEN状態）
+   ```powershell
+   Get-NetTCPConnection -LocalPort 5194 -State Listen
+   ```
 
-## 4) 手動テスト（MVP）
-1. 起動後、エディタで段落入力、Bold/Italic → 右ペインに反映（JSONレンダラー `src/components/PreviewJSON.tsx`）。
-2. Zenトグル: Ctrl+Shift+Z（`src/store/useEditorStore.ts` の `zen`）。
-3. 選択肢: Ctrl+Shift+C → `choiceButton` ノード挿入（`src/extensions/choiceButton.ts`）。
-4. リロード → LocalStorage 復元（`ngen:doc`/`ngen:html`）。
+## 停止
+1. `editor-proto/scripts/preview-stop.cmd` をダブルクリック（引数なしで5194を停止）
 
-## 5) トラブルシュート
-- ブラウザが直ちに閉じる: 開発サーバーではなく静的プレビュー（5180/5192）を使用。
-- 到達不可: 別ポートに切り替え（例: 5178/5180/5192/5195）。
-- 変更が反映されない: 静的配信時は再ビルドが必要（2)→ビルドを再実行）。
+## 変更の反映
+- コードを修正したら、もう一度 `preview-build-start.cmd` をダブルクリック（再ビルド→再起動）
+- 変更がない場合の再起動は、`preview-start.cmd` でOK
+
+## 手動テスト（MVP）
+1. エディタで段落入力し、Bold/Italic を適用 → 右ペイン（JSONレンダラ `src/components/PreviewJSON.tsx`）に反映
+2. Zenトグル: Ctrl+Shift+Z（`src/store/useEditorStore.ts` の `zen`）。右上に「Zen: ON/OFF」インジケータ表示。インジケータをクリックでも切替可能。
+3. 選択肢: Ctrl+Shift+C → `choiceButton` ノード挿入（`src/extensions/choiceButton.ts`）
+4. Slashコマンド（Space または Enter で発火）:
+    - 画像: `"/image <URL>"` または `"/image"` → プロンプトでURL → 画像ノード挿入
+    - 選択肢: `"/choice <ラベル>"` または `"/choice"` → プロンプトでラベル → `choiceButton` ノード挿入
+5. リロード → LocalStorage 復元（`ngen:doc`/`ngen:html`）
+
+## トラブルシュート（必要時のみ）
+- 5194が使用中: `preview-stop.cmd` を実行 → 再度 `preview-build-start.cmd`
+- 別ポートを使いたい: `preview-*.cmd` の `PORT` 変数を書き換え
+- ブラウザが開かない: アドレスバーに `http://127.0.0.1:5194` を手入力
