@@ -55,6 +55,14 @@
   - `.npmrc` を追加（`fund=false`, `audit=false`, `progress=false`, `loglevel=warn`）
   - npm 承認バナー問題の回避策: 絶対パスで `npm.cmd`/`node.exe` を呼び出す
 
+- 2025-08-26: プレビュー安定運用の確立
+  - `docs/RUN_PREVIEW.md` を追加し、静的プレビュー/簡易HTTPサーバーでの安定手順を明文化
+  - `public/healthz.txt` を追加（疎通確認用）
+  - `scripts/serve-simple.(js|cjs)` を追加し、`dist/` をポート5192で配信（`npm run serve:simple`）
+  - `package.json` に `serve:simple` スクリプトを追加
+  - `.gitignore` に `*.log`/`*.err` を追加
+  - Vite dev/preview 到達性が不安定な環境でも、5192 経由でプレビュー維持可能に
+
 ## 本セッションの簡易テスト手順（暫定）
 1) サーバ起動: `node node_modules/vite/bin/vite.js`（IDE から実行。承認が出たら許可）
 2) 文章入力: 段落作成、bold/italic を適用 → 右ペインに即時反映（JSONレンダラ）
