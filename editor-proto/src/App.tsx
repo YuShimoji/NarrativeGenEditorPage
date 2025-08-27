@@ -98,7 +98,7 @@ export default function App() {
         )}
         <div className="editor-wrap">
           <EditorContent editor={editor} />
-          <SlashHints editor={editor} />
+          <SlashHints editor={editor} zen={zen} />
         </div>
       </div>
       <div className="pane pane-preview">

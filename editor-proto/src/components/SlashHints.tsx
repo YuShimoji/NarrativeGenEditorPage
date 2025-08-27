@@ -6,9 +6,9 @@ const CANDIDATES = [
   { key: 'choice', label: 'choice — 選択肢を挿入' },
 ]
 
-type Props = { editor: Editor | null }
+type Props = { editor: Editor | null, zen?: boolean }
 
-export const SlashHints: React.FC<Props> = ({ editor }) => {
+export const SlashHints: React.FC<Props> = ({ editor, zen }) => {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [coords, setCoords] = useState<{x: number, y: number}>({ x: 0, y: 0 })
@@ -22,6 +22,11 @@ export const SlashHints: React.FC<Props> = ({ editor }) => {
 
   useEffect(() => {
     if (!editor) return
+    if (zen) {
+      setOpen(false)
+      setQuery('')
+      return
+    }
     const update = () => {
       const { state } = editor
       const {$from} = state.selection as any
@@ -49,7 +54,7 @@ export const SlashHints: React.FC<Props> = ({ editor }) => {
       editor.off('update', update)
       editor.off('selectionUpdate', update)
     }
-  }, [editor])
+  }, [editor, zen])
 
   useEffect(() => {
     if (!open) return
@@ -92,6 +97,7 @@ export const SlashHints: React.FC<Props> = ({ editor }) => {
     setQuery('')
   }
 
+  if (zen) return null
   if (!open || items.length === 0) return null
 
   return (

@@ -1,6 +1,6 @@
 # プレビュー起動手順（最短・安定）
 
-最終更新: 2025-08-27
+最終更新: 2025-08-28
 
 本手順は「ダブルクリックで起動・停止」を最優先に簡素化しています。IDEの承認や複数系統のフォールバック操作は不要です。
 
@@ -46,6 +46,7 @@
 2. Zenトグル: Ctrl+Shift+Z（`src/store/useEditorStore.ts` の `zen`）。右上に「Zen: ON/OFF」インジケータ表示。インジケータをクリックでも切替可能。
    - Zen OFF のときは 2 ペイン表示（左: Editor / 右: Preview）。Zen ON のときはプレビュー非表示。
    - Zen OFF のとき、各ペインの左上に小さなラベル（Editor/Preview）が表示されます（`src/index.css` の `.pane-title`）。
+   - Zen ON のとき、補助UI（BubbleMenu・Slashサジェスト・Paneタイトル）は内部的に無効化/非表示になります（DOMを安定化させるため）。
 3. 選択肢: Ctrl+Shift+C → `choiceButton` ノード挿入（`src/extensions/choiceButton.ts`）
 4. Slashコマンド（Space または Enter で発火）:
     - 画像: `"/image <URL>"` または `"/image"` → プロンプトでURL → 画像ノード挿入
@@ -64,3 +65,7 @@
  - コンソールに `Could not establish connection. Receiving end does not exist.` が出る:
    - ブラウザ拡張（例: 共有・翻訳・スクショ系）が発している場合があります。アプリ動作には無関係なので無視するか、拡張を一時的に無効化してください。
    - アプリ側のエラーは、スタックトレースに `src/` 下のファイルが出るものを対象に確認します。
+ - Zen 切替で画面が消える/`NotFoundError: Failed to execute 'insertBefore'` が出る:
+   - Tiptap のバブルメニュー（Tippy）や Slash サジェストと DOM の付け外しが同時に起きた際にまれに発生する競合です。
+   - 対策: BubbleMenu は常時マウントして `shouldShow` で非表示、SlashHints は Zen 中に無効化、Pane タイトルは CSS で非表示化（DOMを安定化）。
+   - それでも再現する場合は、Ctrl+F5 でハードリロード、`localStorage` の `ngen:doc`/`ngen:html` を一時削除してから再試行し、再現手順とスタックトップの数行を共有してください。
