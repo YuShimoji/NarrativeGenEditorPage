@@ -35,6 +35,13 @@ export const SlashCommands = Extension.create({
           url = window.prompt('画像URLを入力:')?.trim() || ''
         }
         if (!url) return true
+        // simple scheme validation
+        if (!/^https?:\/\//i.test(url)) {
+          if (typeof window !== 'undefined') {
+            window.alert('画像URLは http(s):// で始まる必要があります。')
+          }
+          return true
+        }
         last = { from: start, to: end, at: now }
         return editor
           .chain()
