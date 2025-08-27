@@ -8,6 +8,7 @@ import { Preview } from './components/Preview'
 import { ChoiceButton } from './extensions/choiceButton'
 import { SlashCommands } from './extensions/slashCommands'
 import { ZenIndicator } from './components/ZenIndicator'
+import { SlashHints } from './components/SlashHints'
 
 export default function App() {
   const setDoc = useEditorStore((s) => s.setDoc)
@@ -95,6 +96,7 @@ export default function App() {
         )}
         <div className="editor-wrap">
           <EditorContent editor={editor} />
+          <SlashHints editor={editor} />
         </div>
       </div>
       <div className="pane pane-preview">
