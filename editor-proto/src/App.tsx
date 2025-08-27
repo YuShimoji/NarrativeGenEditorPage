@@ -82,11 +82,13 @@ export default function App() {
   return (
     <div className={`app ${zen ? 'is-zen' : ''}`}>
       <div className="pane pane-editor">
-        {!zen && (
-          <div className="pane-title">Editor</div>
-        )}
+        <div className="pane-title">Editor</div>
         {editor && (
-          <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
+          <BubbleMenu
+            editor={editor}
+            tippyOptions={{ duration: 100 }}
+            shouldShow={() => !zen}
+          >
             <div className="bubble">
               <button onClick={() => editor.chain().focus().toggleBold().run()}>B</button>
               <button onClick={() => editor.chain().focus().toggleItalic().run()}>I</button>
@@ -100,9 +102,7 @@ export default function App() {
         </div>
       </div>
       <div className="pane pane-preview">
-        {!zen && (
-          <div className="pane-title">Preview</div>
-        )}
+        <div className="pane-title">Preview</div>
         <Preview />
       </div>
       <ZenIndicator />

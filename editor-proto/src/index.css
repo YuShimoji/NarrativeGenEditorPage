@@ -102,3 +102,5 @@ body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI
 /* Zen mode: hide preview and use single column */
 .app.is-zen { grid-template-columns: 1fr; }
 .app.is-zen .pane-preview { display: none; }
+.app.is-zen .pane-title { display: none; }
+.app.is-zen .slash-hints { display: none; }
