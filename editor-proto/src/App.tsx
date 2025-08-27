@@ -87,7 +87,7 @@ export default function App() {
           <BubbleMenu
             editor={editor}
             tippyOptions={{ duration: 100 }}
-            shouldShow={() => !zen}
+            shouldShow={({ editor: _ed }) => !zen}
           >
             <div className="bubble">
               <button onClick={() => editor.chain().focus().toggleBold().run()}>B</button>
