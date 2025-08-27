@@ -34,6 +34,21 @@ body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI
 .preview .preview-content { max-width: 760px; margin: 0 auto; padding: 48px 24px 96px; color: #f0f0f0; }
 .preview .preview-placeholder { opacity: 0.6; padding: 48px; text-align: center; }
 
+/* Pane title (visible only when Zen is OFF) */
+.pane-title {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: inline-block;
+  margin: 8px 12px;
+  padding: 2px 8px;
+  font-size: 12px;
+  color: var(--fg);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+}
+
 /* Zen indicator */
 .zen-indicator {
   position: fixed;
@@ -55,3 +70,7 @@ body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI
   .app { grid-template-columns: 1fr; }
   .pane-preview { display: none; }
 }
+
+/* Zen mode: hide preview and use single column */
+.app.is-zen { grid-template-columns: 1fr; }
+.app.is-zen .pane-preview { display: none; }

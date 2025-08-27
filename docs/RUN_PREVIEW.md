@@ -1,6 +1,6 @@
 # プレビュー起動手順（最短・安定）
 
-最終更新: 2025-08-26
+最終更新: 2025-08-28
 
 本手順は「ダブルクリックで起動・停止」を最優先に簡素化しています。IDEの承認や複数系統のフォールバック操作は不要です。
 
@@ -44,13 +44,19 @@
 ## 手動テスト（MVP）
 1. エディタで段落入力し、Bold/Italic を適用 → 右ペイン（JSONレンダラ `src/components/PreviewJSON.tsx`）に反映
 2. Zenトグル: Ctrl+Shift+Z（`src/store/useEditorStore.ts` の `zen`）。右上に「Zen: ON/OFF」インジケータ表示。インジケータをクリックでも切替可能。
+   - Zen OFF のときは 2 ペイン表示（左: Editor / 右: Preview）。Zen ON のときはプレビュー非表示。
+   - Zen OFF のとき、各ペインの左上に小さなラベル（Editor/Preview）が表示されます（`src/index.css` の `.pane-title`）。
 3. 選択肢: Ctrl+Shift+C → `choiceButton` ノード挿入（`src/extensions/choiceButton.ts`）
 4. Slashコマンド（Space または Enter で発火）:
     - 画像: `"/image <URL>"` または `"/image"` → プロンプトでURL → 画像ノード挿入
     - 選択肢: `"/choice <ラベル>"` または `"/choice"` → プロンプトでラベル → `choiceButton` ノード挿入
+   - メモ: Space と Enter を連打したときの二重挿入を抑止する短時間ガードを実装済み（`src/extensions/slashCommands.ts`）。
 5. リロード → LocalStorage 復元（`ngen:doc`/`ngen:html`）
 
 ## トラブルシュート（必要時のみ）
 - 5194が使用中: `preview-stop.cmd` を実行 → 再度 `preview-build-start.cmd`
 - 別ポートを使いたい: `preview-*.cmd` の `PORT` 変数を書き換え
 - ブラウザが開かない: アドレスバーに `http://127.0.0.1:5194` を手入力
+ - コンソールに `Could not establish connection. Receiving end does not exist.` が出る:
+   - ブラウザ拡張（例: 共有・翻訳・スクショ系）が発している場合があります。アプリ動作には無関係なので無視するか、拡張を一時的に無効化してください。
+   - アプリ側のエラーは、スタックトレースに `src/` 下のファイルが出るものを対象に確認します。

@@ -79,8 +79,11 @@ export default function App() {
   }, [toggleZen, editor])
 
   return (
-    <div className="app">
+    <div className={`app ${zen ? 'is-zen' : ''}`}>
       <div className="pane pane-editor">
+        {!zen && (
+          <div className="pane-title">Editor</div>
+        )}
         {editor && (
           <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
             <div className="bubble">
@@ -94,7 +97,10 @@ export default function App() {
           <EditorContent editor={editor} />
         </div>
       </div>
-      <div className="pane pane-preview" style={{ display: zen ? 'none' : 'block' }}>
+      <div className="pane pane-preview">
+        {!zen && (
+          <div className="pane-title">Preview</div>
+        )}
         <Preview />
       </div>
       <ZenIndicator />

@@ -12,11 +12,20 @@ export const SlashCommands = Extension.create({
   name: 'slashCommands',
 
   addKeyboardShortcuts() {
+    // guard to avoid double execution in a very short time window
+    let last = { from: -1, to: -1, at: 0 }
+
     const handle = () => {
       const editor = this.editor
       const { state } = editor
       const { text, start, end } = getParagraphText(state)
       const trimmed = text.trim()
+
+      // short-time duplicate execution guard (e.g., Space then Enter)
+      const now = Date.now()
+      if (last.from === start && last.to === end && now - last.at < 300) {
+        return true
+      }
 
       // /image [url]
       const img = trimmed.match(/^\/image(?:\s+(.+))?$/i)
@@ -26,6 +35,7 @@ export const SlashCommands = Extension.create({
           url = window.prompt('画像URLを入力:')?.trim() || ''
         }
         if (!url) return true
+        last = { from: start, to: end, at: now }
         return editor
           .chain()
           .focus()
@@ -38,6 +48,7 @@ export const SlashCommands = Extension.create({
       const ch = trimmed.match(/^\/choice(?:\s+(.+))?$/i)
       if (ch) {
         const label = (ch[1]?.trim() || (typeof window !== 'undefined' ? window.prompt('選択肢のラベル:', '選択肢') || '' : '')).trim()
+        last = { from: start, to: end, at: now }
         return editor
           .chain()
           .focus()
