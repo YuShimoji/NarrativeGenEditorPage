@@ -11,6 +11,7 @@ import { SlashCommands } from './extensions/slashCommands'
 import { ZenIndicator } from './components/ZenIndicator'
 import { SlashHints } from './components/SlashHints'
 import { ScenePanel } from './components/ScenePanel'
+import { WikiPanel } from './components/WikiPanel'
 
 export default function App() {
   const setDoc = useEditorStore((s) => s.setDoc)
@@ -132,6 +133,9 @@ export default function App() {
       <div className="pane pane-preview">
         <div className="pane-title">Preview</div>
         <Preview />
+      </div>
+      <div className="pane pane-wiki">
+        <WikiPanel />
       </div>
       <ZenIndicator />
     </div>
