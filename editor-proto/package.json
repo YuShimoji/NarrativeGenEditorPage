@@ -10,14 +10,17 @@
     "serve:simple": "node ./scripts/serve-simple.cjs 5192"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "@tiptap/core": "^2.0.0",
+    "@tiptap/extension-bubble-menu": "^2.0.0",
+    "@tiptap/extension-color": "^2.26.1",
+    "@tiptap/extension-image": "^2.0.0",
+    "@tiptap/extension-placeholder": "^2.0.0",
+    "@tiptap/extension-text-style": "^2.26.1",
+    "@tiptap/extension-underline": "^2.26.1",
     "@tiptap/react": "^2.0.0",
     "@tiptap/starter-kit": "^2.0.0",
-    "@tiptap/extension-bubble-menu": "^2.0.0",
-    "@tiptap/extension-placeholder": "^2.0.0",
-    "@tiptap/extension-image": "^2.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

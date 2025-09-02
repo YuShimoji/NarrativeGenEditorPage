@@ -4,15 +4,23 @@ import { useEditorStore } from '../store/useEditorStore'
 export const ZenIndicator: React.FC = () => {
   const zen = useEditorStore((s) => s.zen)
   const toggleZen = useEditorStore((s) => s.toggleZen)
+  
   return (
-    <div
-      className="zen-indicator"
-      title="クリック or Ctrl+Shift+Z で切替"
-      role="button"
-      aria-pressed={zen}
+    <button
+      className={`zen-toggle ${zen ? 'zen-active' : 'zen-inactive'}`}
+      title={zen ? 'Zenモードを終了 (Ctrl+Shift+Z)' : 'Zenモードを開始 (Ctrl+Shift+Z)'}
       onClick={() => toggleZen()}
+      aria-pressed={zen}
     >
-      {zen ? 'Zen: ON' : 'Zen: OFF'}
-    </div>
+      <span className="zen-icon">
+        {zen ? '🧘‍♂️' : '📝'}
+      </span>
+      <span className="zen-text">
+        {zen ? 'Zen ON' : 'Zen OFF'}
+      </span>
+      <span className="zen-shortcut">
+        Ctrl+Shift+Z
+      </span>
+    </button>
   )
 }
