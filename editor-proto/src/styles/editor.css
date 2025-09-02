@@ -1,0 +1,106 @@
+/* Editor-specific styles */
+.editor-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-toolbar {
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 8px 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.editor-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.ProseMirror {
+  outline: none;
+  line-height: 1.6;
+  font-size: 16px;
+  color: var(--fg);
+  min-height: 100%;
+}
+
+.ProseMirror p {
+  margin: 0 0 16px 0;
+}
+
+.ProseMirror h1, .ProseMirror h2, .ProseMirror h3 {
+  color: var(--accent);
+  margin: 24px 0 16px 0;
+}
+
+.ProseMirror h1 { font-size: 28px; }
+.ProseMirror h2 { font-size: 24px; }
+.ProseMirror h3 { font-size: 20px; }
+
+.ProseMirror strong { color: var(--accent); }
+.ProseMirror em { color: #ffd700; }
+
+.ProseMirror blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 16px;
+  margin: 16px 0;
+  opacity: 0.8;
+}
+
+.ProseMirror ul, .ProseMirror ol {
+  padding-left: 20px;
+  margin: 16px 0;
+}
+
+.ProseMirror li {
+  margin: 4px 0;
+}
+
+.ProseMirror code {
+  background: rgba(255,255,255,0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+}
+
+.ProseMirror pre {
+  background: rgba(255,255,255,0.05);
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+.ProseMirror pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Save status indicator */
+.save-status {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.save-status.saving {
+  background: rgba(255, 193, 7, 0.9);
+  color: black;
+}
+
+.save-status.saved {
+  background: rgba(40, 167, 69, 0.9);
+  color: white;
+}

@@ -1,0 +1,140 @@
+/* Scene Panel Styles */
+.scene-panel {
+  background: var(--bg);
+  padding: 16px;
+  overflow-y: auto;
+  height: 100%;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+.scene-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.scene-title {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.scene-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scene-item {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.scene-item:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.12);
+}
+
+.scene-item.active {
+  background: rgba(94,229,169,0.1);
+  border-color: var(--accent);
+}
+
+.scene-item-title {
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.scene-item-preview {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+/* Preview Panel Styles */
+.preview-panel {
+  background: #fff;
+  padding: 20px;
+  overflow-y: auto;
+  height: 100%;
+  font-family: Georgia, serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.preview-content h1,
+.preview-content h2,
+.preview-content h3 {
+  color: #2c3e50;
+  margin: 24px 0 16px 0;
+}
+
+.preview-content h1 { font-size: 28px; }
+.preview-content h2 { font-size: 24px; }
+.preview-content h3 { font-size: 20px; }
+
+.preview-content p {
+  margin: 0 0 16px 0;
+  text-align: justify;
+}
+
+.preview-content strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.preview-content em {
+  color: #8b4513;
+  font-style: italic;
+}
+
+.preview-content blockquote {
+  border-left: 3px solid #3498db;
+  padding-left: 16px;
+  margin: 16px 0;
+  font-style: italic;
+  color: #555;
+}
+
+.preview-content ul,
+.preview-content ol {
+  padding-left: 20px;
+  margin: 16px 0;
+}
+
+.preview-content li {
+  margin: 4px 0;
+}
+
+.preview-content code {
+  background: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: #e83e8c;
+}
+
+.preview-content pre {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 16px 0;
+  border: 1px solid #e9ecef;
+}
+
+.preview-content pre code {
+  background: none;
+  padding: 0;
+  color: #333;
+}

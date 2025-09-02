@@ -1,0 +1,113 @@
+/* Extension-specific styles */
+
+/* Divider Styles */
+.divider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 24px 0;
+  padding: 8px 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.divider:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+
+.divider-line {
+  color: #6c757d;
+  font-size: 16px;
+  letter-spacing: 4px;
+}
+
+.divider-stars {
+  color: #ffd700;
+  font-size: 18px;
+  letter-spacing: 8px;
+}
+
+.divider-dots {
+  color: #6c757d;
+  font-size: 20px;
+  letter-spacing: 6px;
+}
+
+.divider-wave {
+  color: #6c757d;
+  letter-spacing: 2px;
+}
+
+.divider-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* Choice Button Styles */
+.choice-button {
+  display: inline-block;
+  margin: 8px 4px;
+  padding: 12px 20px;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  background: #fff;
+  color: #007bff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  user-select: none;
+}
+
+.choice-button:hover {
+  background: #007bff;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+
+.choice-normal {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.choice-important {
+  border-color: #28a745;
+  color: #28a745;
+  font-weight: 600;
+}
+
+.choice-important:hover {
+  background: #28a745;
+  color: white;
+}
+
+.choice-danger {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.choice-danger:hover {
+  background: #dc3545;
+  color: white;
+}
+
+.choice-subtle {
+  border-color: #6c757d;
+  color: #6c757d;
+  opacity: 0.8;
+}
+
+.choice-subtle:hover {
+  background: #6c757d;
+  color: white;
+}
+
+.choice-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}

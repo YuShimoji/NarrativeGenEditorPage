@@ -1,0 +1,40 @@
+/* Base styles and CSS variables */
+:root {
+  --bg: #0b0b0b;
+  --fg: #e6e6e6;
+  --muted: #888;
+  --accent: #5ee5a9;
+  --accent-color-rgb: 94, 229, 169;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100vh; margin: 0; padding: 0; }
+body { 
+  margin: 0; 
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'; 
+  background: var(--bg); 
+  color: var(--fg); 
+}
+
+.app { 
+  height: 100vh; 
+  display: grid; 
+  grid-template-columns: 240px 1fr 0.6fr 280px; 
+  gap: 1px; 
+  background: var(--bg);
+}
+
+.pane { 
+  height: 100vh; 
+  overflow: auto; 
+  background: var(--bg);
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Zen mode: hide preview and use single column */
+.app.is-zen { grid-template-columns: 1fr; }
+.app.is-zen .pane-preview { display: none; }
+.app.is-zen .pane-scene { display: none; }
+.app.is-zen .pane-wiki { display: none; }
+.app.is-zen .pane-title { display: none; }
+.app.is-zen .slash-hints { display: none; }

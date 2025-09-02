@@ -13,7 +13,7 @@ export const ZenIndicator: React.FC = () => {
       aria-pressed={zen}
     >
       <span className="zen-icon">
-        {zen ? '🧘‍♂️' : '📝'}
+        {zen ? '●' : '○'}
       </span>
       <span className="zen-text">
         {zen ? 'Zen ON' : 'Zen OFF'}
