@@ -1,0 +1,178 @@
+@startuml NarrativeGenEditor-ClassDiagram
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageStyle rectangle
+
+package "React Components" {
+  class App {
+    -editor: Editor
+    -zen: boolean
+    -lastSaved: Date
+    -isSaving: boolean
+    +getEditorPlainText(): string
+    +handleManualSave(): void
+  }
+
+  class ZenIndicator {
+    +toggleZen(): void
+  }
+
+  class Preview {
+    +renderContent(): ReactNode
+  }
+
+  class ScenePanel {
+    +renderSceneList(): ReactNode
+    +handleSceneSelect(): void
+  }
+
+  class WikiPanel {
+    +renderWikiEntries(): ReactNode
+    +handleWikiSelect(): void
+  }
+
+  class AutoWikiExtractor {
+    -content: string
+    -suggestions: WikiSuggestion[]
+    +extractEntities(): WikiSuggestion[]
+    +onSuggestionsReady(): void
+  }
+
+  class SlashHints {
+    -editor: Editor
+    -zen: boolean
+    +renderHints(): ReactNode
+  }
+}
+
+package "Tiptap Extensions" {
+  abstract class TiptapExtension {
+    +name: string
+    +addAttributes(): object
+    +addCommands(): object
+  }
+
+  class ChoiceButton extends TiptapExtension {
+    -text: string
+    -targetSceneId: string
+    -style: ChoiceStyle
+    -condition: string
+    -enabled: boolean
+    +insertChoiceButton(): Command
+  }
+
+  class Divider extends TiptapExtension {
+    -type: DividerType
+    -imageUrl: string
+    +insertDivider(): Command
+  }
+
+  class SlashCommands extends TiptapExtension {
+    +addProseMirrorPlugins(): Plugin[]
+  }
+}
+
+package "State Management (Zustand)" {
+  class EditorStore {
+    -doc: JSONContent
+    -html: string
+    -zen: boolean
+    -saveStatus: SaveStatus
+    +setDoc(): void
+    +setHtml(): void
+    +toggleZen(): void
+    +setSaveStatus(): void
+  }
+
+  class SceneStore {
+    -scenes: Scene[]
+    -currentSceneId: string
+    +addScene(): void
+    +updateScene(): void
+    +deleteScene(): void
+    +getCurrentScene(): Scene
+  }
+
+  class WikiStore {
+    -entries: WikiEntry[]
+    -selectedEntry: WikiEntry
+    +addEntry(): void
+    +updateEntry(): void
+    +getRelatedEntries(): WikiEntry[]
+  }
+}
+
+package "Types & Interfaces" {
+  interface Scene {
+    +id: string
+    +title: string
+    +content: JSONContent
+    +createdAt: Date
+    +updatedAt: Date
+  }
+
+  interface WikiEntry {
+    +id: string
+    +name: string
+    +type: WikiEntryType
+    +description: string
+    +tags: string[]
+    +relatedScenes: string[]
+  }
+
+  interface WikiSuggestion {
+    +name: string
+    +type: WikiEntryType
+    +confidence: number
+    +context: string
+  }
+
+  enum ChoiceStyle {
+    NORMAL
+    IMPORTANT
+    DANGER
+    SUBTLE
+  }
+
+  enum DividerType {
+    LINE
+    STARS
+    DOTS
+    WAVE
+    IMAGE
+  }
+
+  enum WikiEntryType {
+    CHARACTER
+    LOCATION
+    ITEM
+    ORGANIZATION
+    CONCEPT
+  }
+}
+
+' Relationships
+App --> EditorStore : uses
+App --> SceneStore : uses
+App --> ZenIndicator : contains
+App --> Preview : contains
+App --> ScenePanel : contains
+App --> WikiPanel : contains
+App --> AutoWikiExtractor : contains
+App --> SlashHints : contains
+
+App --> ChoiceButton : uses
+App --> Divider : uses
+App --> SlashCommands : uses
+
+WikiPanel --> WikiStore : uses
+ScenePanel --> SceneStore : uses
+AutoWikiExtractor --> WikiStore : updates
+
+ChoiceButton --> ChoiceStyle : uses
+Divider --> DividerType : uses
+WikiEntry --> WikiEntryType : uses
+AutoWikiExtractor --> WikiSuggestion : produces
+
+@enduml

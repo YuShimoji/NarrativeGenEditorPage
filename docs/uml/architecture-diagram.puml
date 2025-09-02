@@ -1,0 +1,83 @@
+@startuml NarrativeGenEditor-ArchitectureDiagram
+!theme plain
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+
+package "Presentation Layer" {
+  component [4-Pane Layout] as Layout {
+    component [Scene Panel] as ScenePane
+    component [Editor Panel] as EditorPane  
+    component [Preview Panel] as PreviewPane
+    component [Wiki Panel] as WikiPane
+  }
+  
+  component [Zen Mode Toggle] as ZenToggle
+  component [BubbleMenu] as BubbleMenu
+  component [SlashHints] as SlashHints
+}
+
+package "Business Logic Layer" {
+  component [Tiptap Editor Core] as TiptapCore
+  component [Extension System] as Extensions {
+    component [ChoiceButton] as ChoiceExt
+    component [Divider] as DividerExt
+    component [SlashCommands] as SlashExt
+  }
+  
+  component [Wiki Engine] as WikiEngine {
+    component [NLP Analyzer] as NLP
+    component [Entity Extractor] as EntityExt
+    component [Auto Suggester] as AutoSuggest
+  }
+}
+
+package "State Management Layer" {
+  component [Zustand Stores] as Stores {
+    component [EditorStore] as EditorStore
+    component [SceneStore] as SceneStore  
+    component [WikiStore] as WikiStore
+  }
+}
+
+package "Data Layer" {
+  component [LocalStorage] as LocalStorage
+  component [IndexedDB] as IndexedDB
+  note right of IndexedDB : 将来実装予定
+}
+
+package "Styling Layer" {
+  component [CSS Modules] as CSSModules {
+    component [base.css] as BaseCSS
+    component [editor.css] as EditorCSS
+    component [components.css] as ComponentCSS
+    component [extensions.css] as ExtensionCSS
+    component [wiki.css] as WikiCSS
+    component [scenes.css] as SceneCSS
+  }
+}
+
+' Connections
+Layout --> TiptapCore : uses
+Layout --> Stores : subscribes to
+BubbleMenu --> Extensions : triggers
+SlashHints --> Extensions : triggers
+ZenToggle --> EditorStore : updates
+
+TiptapCore --> Extensions : loads
+TiptapCore --> Stores : updates
+WikiEngine --> WikiStore : updates
+WikiEngine --> NLP : uses
+WikiEngine --> EntityExt : uses
+WikiEngine --> AutoSuggest : uses
+
+Stores --> LocalStorage : persists to
+EditorStore --> LocalStorage : auto-save
+SceneStore --> LocalStorage : scene data
+WikiStore --> LocalStorage : wiki entries
+
+Layout --> CSSModules : styled by
+Extensions --> ExtensionCSS : styled by
+WikiPane --> WikiCSS : styled by
+ScenePane --> SceneCSS : styled by
+
+@enduml

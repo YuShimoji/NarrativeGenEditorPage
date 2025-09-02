@@ -1,0 +1,104 @@
+@startuml NarrativeGenEditor-ComponentDiagram
+!theme plain
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+package "Frontend Application" {
+  component [App.tsx] as App
+  component [ZenIndicator] as Zen
+  component [Preview] as Preview
+  component [ScenePanel] as Scenes
+  component [WikiPanel] as Wiki
+  component [AutoWikiExtractor] as Extractor
+  component [SlashHints] as Hints
+}
+
+package "Tiptap Extensions" {
+  component [ChoiceButton] as Choice
+  component [Divider] as Div
+  component [SlashCommands] as Slash
+  component [Image] as Img
+  component [StarterKit] as Starter
+}
+
+package "State Management" {
+  component [EditorStore] as EditorState
+  component [SceneStore] as SceneState
+  component [WikiStore] as WikiState
+}
+
+package "CSS Modules" {
+  component [base.css] as BaseCSS
+  component [editor.css] as EditorCSS
+  component [components.css] as ComponentCSS
+  component [extensions.css] as ExtensionCSS
+  component [wiki.css] as WikiCSS
+  component [scenes.css] as SceneCSS
+}
+
+package "External Libraries" {
+  component [React] as React
+  component [Tiptap] as Tiptap
+  component [Zustand] as Zustand
+  component [Vite] as Vite
+}
+
+' Main App connections
+App --> Zen : renders
+App --> Preview : renders
+App --> Scenes : renders
+App --> Wiki : renders
+App --> Extractor : renders
+App --> Hints : renders
+
+' Extension connections
+App --> Choice : uses
+App --> Div : uses
+App --> Slash : uses
+App --> Img : uses
+App --> Starter : uses
+
+' State connections
+App --> EditorState : subscribes
+Scenes --> SceneState : subscribes
+Wiki --> WikiState : subscribes
+Extractor --> WikiState : updates
+
+' CSS connections
+App --> BaseCSS : imports
+App --> EditorCSS : imports
+App --> ComponentCSS : imports
+App --> ExtensionCSS : imports
+App --> WikiCSS : imports
+App --> SceneCSS : imports
+
+' External library connections
+App --> React : extends
+Choice --> Tiptap : extends
+Div --> Tiptap : extends
+Slash --> Tiptap : extends
+EditorState --> Zustand : uses
+SceneState --> Zustand : uses
+WikiState --> Zustand : uses
+App --> Vite : built by
+
+' Data flow
+note right of Extractor
+  NLP Analysis
+  Entity Extraction
+  Auto Wiki Generation
+end note
+
+note right of EditorState
+  Document State
+  HTML/JSON Content
+  Zen Mode State
+end note
+
+note right of SceneState
+  Scene Management
+  Navigation State
+  Content Persistence
+end note
+
+@enduml
