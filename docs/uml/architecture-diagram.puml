@@ -1,10 +1,9 @@
 @startuml NarrativeGenEditor-ArchitectureDiagram
-!theme plain
 skinparam packageStyle rectangle
 skinparam componentStyle rectangle
 
 package "Presentation Layer" {
-  component [4-Pane Layout] as Layout {
+  component [FourPane Layout] as Layout {
     component [Scene Panel] as ScenePane
     component [Editor Panel] as EditorPane  
     component [Preview Panel] as PreviewPane

@@ -1,5 +1,4 @@
 @startuml NarrativeGenEditor-ComponentDiagram
-!theme plain
 skinparam componentStyle rectangle
 skinparam packageStyle rectangle
 

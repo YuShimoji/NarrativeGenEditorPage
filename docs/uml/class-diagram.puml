@@ -1,5 +1,4 @@
 @startuml NarrativeGenEditor-ClassDiagram
-!theme plain
 skinparam classAttributeIconSize 0
 skinparam classFontSize 12
 skinparam packageStyle rectangle

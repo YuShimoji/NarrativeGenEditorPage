@@ -1,6 +1,51 @@
 import React, { useState, useMemo } from 'react'
 import { useWikiStore, WikiEntry, EntryCategory } from '../store/useWikiStore'
 
+// Simple markdown parser for headings
+const parseMarkdownHeadings = (markdown: string) => {
+  const lines = markdown.split('\n')
+  const headings: { level: number; text: string; id: string }[] = []
+  
+  lines.forEach((line, index) => {
+    const match = line.match(/^(#{1,6})\s+(.+)$/)
+    if (match) {
+      const level = match[1].length
+      const text = match[2].trim()
+      const id = `heading-${index}-${text.toLowerCase().replace(/[^a-z0-9\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/g, '-')}`
+      headings.push({ level, text, id })
+    }
+  })
+  
+  return headings
+}
+
+// Render markdown with heading anchors
+const renderMarkdownWithHeadings = (markdown: string) => {
+  const lines = markdown.split('\n')
+  
+  return lines.map((line, index) => {
+    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/)
+    if (headingMatch) {
+      const level = headingMatch[1].length
+      const text = headingMatch[2].trim()
+      const id = `heading-${index}-${text.toLowerCase().replace(/[^a-z0-9\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/g, '-')}`
+      const HeadingTag = `h${Math.min(level + 2, 6)}` as keyof JSX.IntrinsicElements
+      
+      return (
+        <HeadingTag key={index} id={id} className={`wiki-heading wiki-heading-${level}`}>
+          {text}
+        </HeadingTag>
+      )
+    }
+    
+    if (line.trim()) {
+      return <p key={index} className="wiki-paragraph">{line}</p>
+    }
+    
+    return <br key={index} />
+  })
+}
+
 interface WikiPanelProps {
   selectedText?: string
   onEntrySelect?: (entry: WikiEntry) => void
@@ -23,16 +68,38 @@ export const WikiPanel: React.FC<WikiPanelProps> = ({
   } = useWikiStore()
 
   const [showRelated, setShowRelated] = useState(true)
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [showTagFilter, setShowTagFilter] = useState(false)
 
   // 検索結果の計算
   const searchResults = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return selectedCategory === 'all' 
-        ? entries 
-        : entries.filter(entry => entry.category === selectedCategory)
+    let filtered = entries
+    
+    // カテゴリフィルター
+    if (selectedCategory && selectedCategory !== 'all') {
+      filtered = filtered.filter(entry => entry.category === selectedCategory)
     }
-    return searchEntries(searchTerm)
-  }, [entries, searchTerm, selectedCategory, searchEntries])
+    
+    // タグフィルター
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter(entry => 
+        selectedTags.every(tag => entry.tags.includes(tag))
+      )
+    }
+    
+    // 検索フィルター
+    if (searchTerm.trim()) {
+      const lowerQuery = searchTerm.toLowerCase()
+      filtered = filtered.filter(entry =>
+        entry.title.toLowerCase().includes(lowerQuery) ||
+        entry.content.summary.toLowerCase().includes(lowerQuery) ||
+        entry.content.markdown.toLowerCase().includes(lowerQuery) ||
+        entry.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+      )
+    }
+    
+    return filtered
+  }, [entries, searchTerm, selectedCategory, selectedTags])
 
   // 選択されたテキストに関連するエントリを検索
   const textRelatedEntries = useMemo(() => {
@@ -97,6 +164,27 @@ export const WikiPanel: React.FC<WikiPanelProps> = ({
   }
 
   const recentEntries = getRecentEntries(5)
+  
+  // 全タグの取得
+  const allTags = useMemo(() => {
+    const tagCounts = new Map<string, number>()
+    entries.forEach(entry => {
+      entry.tags.forEach(tag => {
+        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1)
+      })
+    })
+    return Array.from(tagCounts.entries())
+      .sort((a, b) => b[1] - a[1]) // 使用頻度順
+      .map(([tag]) => tag)
+  }, [entries])
+  
+  const handleTagToggle = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    )
+  }
 
   return (
     <div className="wiki-panel">
@@ -126,6 +214,59 @@ export const WikiPanel: React.FC<WikiPanelProps> = ({
           <option value={EntryCategory.EVENT}>⚡ イベント</option>
           <option value={EntryCategory.CONCEPT}>💭 概念</option>
         </select>
+      </div>
+      
+      {/* タグフィルター */}
+      <div className="wiki-tag-filter">
+        <div className="wiki-tag-filter-header">
+          <span className="wiki-tag-filter-title">🏷️ タグフィルター</span>
+          <button 
+            className="wiki-tag-filter-toggle"
+            onClick={() => setShowTagFilter(!showTagFilter)}
+          >
+            {showTagFilter ? '▼' : '▶'}
+          </button>
+        </div>
+        
+        {showTagFilter && (
+          <div className="wiki-tag-filter-content">
+            <div className="wiki-tag-filter-selected">
+              {selectedTags.length > 0 && (
+                <div className="wiki-selected-tags">
+                  {selectedTags.map(tag => (
+                    <span 
+                      key={tag} 
+                      className="wiki-selected-tag"
+                      onClick={() => handleTagToggle(tag)}
+                    >
+                      #{tag} ×
+                    </span>
+                  ))}
+                  <button 
+                    className="wiki-clear-tags"
+                    onClick={() => setSelectedTags([])}
+                  >
+                    すべてクリア
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            <div className="wiki-available-tags">
+              {allTags.slice(0, 20).map(tag => (
+                <span 
+                  key={tag}
+                  className={`wiki-available-tag ${
+                    selectedTags.includes(tag) ? 'selected' : ''
+                  }`}
+                  onClick={() => handleTagToggle(tag)}
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 選択されたテキストに関連するエントリ */}
@@ -267,8 +408,71 @@ export const WikiPanel: React.FC<WikiPanelProps> = ({
                 </span>
               )}
             </div>
+            
+            {/* 画像ギャラリー */}
+            {selectedEntry.content.gallery && selectedEntry.content.gallery.length > 0 && (
+              <div className="wiki-gallery">
+                <div className="wiki-gallery-header">
+                  <span className="wiki-gallery-title">🖼️ 画像</span>
+                </div>
+                <div className="wiki-gallery-grid">
+                  {selectedEntry.content.gallery.map(media => (
+                    <div key={media.id} className="wiki-gallery-item">
+                      <img 
+                        src={media.url} 
+                        alt={media.caption || selectedEntry.title}
+                        className="wiki-gallery-image"
+                        loading="lazy"
+                      />
+                      {media.caption && (
+                        <div className="wiki-gallery-caption">{media.caption}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* 見出し目次 */}
+            {(() => {
+              const headings = parseMarkdownHeadings(selectedEntry.content.markdown)
+              return headings.length > 0 ? (
+                <div className="wiki-toc">
+                  <div className="wiki-toc-header">
+                    <span className="wiki-toc-title">📋 目次</span>
+                  </div>
+                  <div className="wiki-toc-list">
+                    {headings.map(heading => (
+                      <a 
+                        key={heading.id}
+                        href={`#${heading.id}`}
+                        className={`wiki-toc-item wiki-toc-level-${heading.level}`}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          const element = document.getElementById(heading.id)
+                          element?.scrollIntoView({ behavior: 'smooth' })
+                        }}
+                      >
+                        {heading.text}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ) : null
+            })()}
+            
             <div className="wiki-entry-content-preview">
               {selectedEntry.content.summary}
+            </div>
+            
+            {/* 詳細コンテンツ */}
+            <div className="wiki-entry-content-full">
+              <div className="wiki-content-header">
+                <span className="wiki-content-title">📖 詳細</span>
+              </div>
+              <div className="wiki-markdown-content">
+                {renderMarkdownWithHeadings(selectedEntry.content.markdown)}
+              </div>
             </div>
             <div className="wiki-entry-tags">
               {selectedEntry.tags.map(tag => (

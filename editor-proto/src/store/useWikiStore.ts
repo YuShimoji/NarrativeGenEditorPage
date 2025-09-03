@@ -191,6 +191,20 @@ export const useWikiStore = create<WikiStore>((set, get) => ({
           '髪色': '銀髪',
           '瞳色': '青'
         } as InfoboxData,
+        gallery: [
+          {
+            id: 'img-elia-1',
+            url: 'https://via.placeholder.com/300x400/87CEEB/000000?text=Elia+Portrait',
+            caption: 'エリア・フォンテーヌの肖像画',
+            type: 'image'
+          },
+          {
+            id: 'img-elia-2', 
+            url: 'https://via.placeholder.com/400x300/E6E6FA/000000?text=Library+Scene',
+            caption: '図書館でのエリア',
+            type: 'image'
+          }
+        ],
         quotes: [
           {
             id: 'quote-1',
@@ -258,7 +272,21 @@ export const useWikiStore = create<WikiStore>((set, get) => ({
           '創設者': '初代国王',
           '学生数': '約800名',
           '学科': '魔法学科、一般教養学科'
-        } as InfoboxData
+        } as InfoboxData,
+        gallery: [
+          {
+            id: 'img-academy-1',
+            url: 'https://via.placeholder.com/500x300/DDA0DD/000000?text=Royal+Academy',
+            caption: '王立学院の外観',
+            type: 'image'
+          },
+          {
+            id: 'img-academy-2',
+            url: 'https://via.placeholder.com/400x300/F0E68C/000000?text=Great+Library',
+            caption: '大図書館の内部',
+            type: 'image'
+          }
+        ]
       },
       tags: ['location', 'academy', 'education', 'magic'],
       category: EntryCategory.LOCATION,

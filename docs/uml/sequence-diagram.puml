@@ -1,8 +1,7 @@
 @startuml NarrativeGenEditor-SequenceDiagram
-!theme plain
 skinparam sequenceMessageAlign center
 
-title エディタ操作とWiki自動抽出のシーケンス
+title "エディタ操作とWiki自動抽出のシーケンス"
 
 actor User as U
 participant "App.tsx" as App
@@ -13,43 +12,43 @@ participant "WikiStore" as WS
 participant "WikiPanel" as WP
 
 == エディタでの文章入力 ==
-U -> App: テキスト入力
-App -> E: editor.on('update')
-E -> ES: setDoc(newDoc)
-E -> ES: setHtml(newHtml)
-ES -> App: state更新通知
-App -> AWE: content更新
+U -> App : テキスト入力
+App -> E : editor.on('update')
+E -> ES : setDoc(newDoc)
+E -> ES : setHtml(newHtml)
+ES -> App : state更新通知
+App -> AWE : content更新
 
 == Wiki自動抽出プロセス ==
-AWE -> AWE: NLP解析実行
-AWE -> AWE: エンティティ抽出
-AWE -> AWE: 信頼度スコア計算
-AWE -> WS: 候補エンティティ送信
-WS -> WP: Wiki候補表示
+AWE -> AWE : NLP解析実行
+AWE -> AWE : エンティティ抽出
+AWE -> AWE : 信頼度スコア計算
+AWE -> WS : 候補エンティティ送信
+WS -> WP : Wiki候補表示
 
 == ユーザーによるWiki承認 ==
-U -> WP: Wiki候補を承認
-WP -> WS: addEntry(newEntry)
-WS -> WP: エントリ一覧更新
+U -> WP : Wiki候補を承認
+WP -> WS : addEntry(newEntry)
+WS -> WP : エントリ一覧更新
 
 == 選択肢挿入操作 ==
-U -> App: テキスト選択
-App -> App: BubbleMenu表示
-U -> App: 選択肢ボタンクリック
-App -> E: insertChoiceButton()
-E -> ES: content更新
-ES -> App: 再レンダリング
+U -> App : テキスト選択
+App -> App : BubbleMenu表示
+U -> App : 選択肢ボタンクリック
+App -> E : insertChoiceButton()
+E -> ES : content更新
+ES -> App : 再レンダリング
 
 == Zenモード切替 ==
-U -> App: Ctrl+Shift+Z
-App -> ES: toggleZen()
-ES -> App: zen状態変更
-App -> App: レイアウト切替
+U -> App : Ctrl+Shift+Z
+App -> ES : toggleZen()
+ES -> App : zen状態変更
+App -> App : レイアウト切替
 
 == シーン切替 ==
-U -> WP: シーン選択
-WP -> App: シーン変更要求
-App -> E: setContent(scene.content)
-E -> ES: 新しいcontent設定
+U -> WP : シーン選択
+WP -> App : シーン変更要求
+App -> E : setContent(scene.content)
+E -> ES : 新しいcontent設定
 
 @enduml
