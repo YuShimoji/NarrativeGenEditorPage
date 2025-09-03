@@ -1,0 +1,53 @@
+name: Generate PlantUML Diagrams
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'docs/uml/*.puml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/uml/*.puml'
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Generate PlantUML diagrams
+      uses: plantuml/plantuml-action@v1
+      with:
+        args: -v -tsvg docs/uml/*.puml
+        
+    - name: Move generated diagrams
+      run: |
+        mkdir -p docs/images
+        mv docs/uml/*.svg docs/images/ || true
+        
+    - name: Generate PNG versions
+      uses: plantuml/plantuml-action@v1
+      with:
+        args: -v -tpng docs/uml/*.puml
+        
+    - name: Move PNG diagrams
+      run: |
+        mv docs/uml/*.png docs/images/ || true
+        
+    - name: Commit generated diagrams
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add docs/images/
+        git diff --staged --quiet || git commit -m "Auto-generate PlantUML diagrams [skip ci]"
+        
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
