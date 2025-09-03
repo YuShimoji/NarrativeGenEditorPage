@@ -21,6 +21,7 @@ import { HeadingNavigator } from './components/HeadingNavigator'
 import { ChoiceButtonEditor } from './components/ChoiceButtonEditor'
 import { ImmersivePostingSystem } from './components/ImmersivePostingSystem'
 import { WikiEntryEditor } from './components/WikiEntryEditor'
+import { RelatedEntriesGenerator } from './components/RelatedEntriesGenerator'
 
 export default function App() {
   const setDoc = useEditorStore((s) => s.setDoc)
@@ -36,6 +37,8 @@ export default function App() {
   const [immersivePostingOpen, setImmersivePostingOpen] = useState(false)
   const [entryEditorOpen, setEntryEditorOpen] = useState(false)
   const [editingEntry, setEditingEntry] = useState<any>(null)
+  const [relatedEntriesOpen, setRelatedEntriesOpen] = useState(false)
+  const [relatedTargetEntry, setRelatedTargetEntry] = useState<any>(null)
 
   const editor = useEditor({
     extensions: [
@@ -352,6 +355,10 @@ export default function App() {
             setEditingEntry(entry || null)
             setEntryEditorOpen(true)
           }}
+          onRelatedEntriesOpen={(entry) => {
+            setRelatedTargetEntry(entry)
+            setRelatedEntriesOpen(true)
+          }}
         />
       </div>
       <ZenIndicator />
@@ -371,6 +378,14 @@ export default function App() {
         onClose={() => {
           setEntryEditorOpen(false)
           setEditingEntry(null)
+        }}
+      />
+      <RelatedEntriesGenerator 
+        targetEntry={relatedTargetEntry}
+        isOpen={relatedEntriesOpen}
+        onClose={() => {
+          setRelatedEntriesOpen(false)
+          setRelatedTargetEntry(null)
         }}
       />
       <AutoWikiExtractor 

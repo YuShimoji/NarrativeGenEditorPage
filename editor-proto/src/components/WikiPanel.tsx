@@ -51,13 +51,15 @@ interface WikiPanelProps {
   onEntrySelect?: (entry: WikiEntry) => void
   onImmersivePostingOpen?: () => void
   onEntryEditOpen?: (entry?: WikiEntry) => void
+  onRelatedEntriesOpen?: (entry: WikiEntry) => void
 }
 
 export const WikiPanel: React.FC<WikiPanelProps> = ({ 
   selectedText, 
   onEntrySelect,
   onImmersivePostingOpen,
-  onEntryEditOpen
+  onEntryEditOpen,
+  onRelatedEntriesOpen
 }) => {
   const { 
     entries, 
@@ -311,16 +313,28 @@ export const WikiPanel: React.FC<WikiPanelProps> = ({
                   <div className="wiki-entry-title">{entry.title}</div>
                   <div className="wiki-entry-summary">{entry.content.summary}</div>
                 </div>
-                <button 
-                  className="wiki-entry-edit-btn"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onEntryEditOpen?.(entry)
-                  }}
-                  title="編集"
-                >
-                  ✏️
-                </button>
+                <div className="wiki-entry-actions">
+                  <button 
+                    className="wiki-entry-action-btn edit-btn"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onEntryEditOpen?.(entry)
+                    }}
+                    title="編集"
+                  >
+                    ✏️
+                  </button>
+                  <button 
+                    className="wiki-entry-action-btn related-btn"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onRelatedEntriesOpen?.(entry)
+                    }}
+                    title="関連項目自動生成"
+                  >
+                    🔗
+                  </button>
+                </div>
               </div>
             ))}
           </div>
