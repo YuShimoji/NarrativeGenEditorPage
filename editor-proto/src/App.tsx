@@ -22,6 +22,7 @@ import { ChoiceButtonEditor } from './components/ChoiceButtonEditor'
 import { ImmersivePostingSystem } from './components/ImmersivePostingSystem'
 import { WikiEntryEditor } from './components/WikiEntryEditor'
 import { RelatedEntriesGenerator } from './components/RelatedEntriesGenerator'
+import { ReadingProgressTracker } from './components/ReadingProgressTracker'
 
 export default function App() {
   const setDoc = useEditorStore((s) => s.setDoc)
@@ -394,6 +395,7 @@ export default function App() {
           console.log('Wiki suggestions ready:', suggestions.length)
         }}
       />
+      <ReadingProgressTracker />
     </div>
   )
 }
