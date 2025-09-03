@@ -3,9 +3,9 @@ import { EditorContent, useEditor, BubbleMenu } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
-// import Underline from '@tiptap/extension-underline'
-// import TextStyle from '@tiptap/extension-text-style'
-// import Color from '@tiptap/extension-color'
+import Underline from '@tiptap/extension-underline'
+import TextStyle from '@tiptap/extension-text-style'
+import Color from '@tiptap/extension-color'
 import { useEditorStore } from './store/useEditorStore'
 import { useSceneStore } from './store/useSceneStore'
 import { Preview } from './components/Preview'
@@ -17,6 +17,8 @@ import { SlashHints } from './components/SlashHints'
 import { ScenePanel } from './components/ScenePanel'
 import { WikiPanel } from './components/WikiPanel'
 import { AutoWikiExtractor } from './components/AutoWikiExtractor'
+import { HeadingNavigator } from './components/HeadingNavigator'
+import { ChoiceButtonEditor } from './components/ChoiceButtonEditor'
 
 export default function App() {
   const setDoc = useEditorStore((s) => s.setDoc)
@@ -28,6 +30,7 @@ export default function App() {
   const currentScene = getCurrentScene()
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [choiceEditorOpen, setChoiceEditorOpen] = useState(false)
 
   const editor = useEditor({
     extensions: [
@@ -40,6 +43,9 @@ export default function App() {
           class: 'editor-image',
         },
       }),
+      Underline,
+      TextStyle,
+      Color.configure({ types: ['textStyle'] }),
       ChoiceButton,
       SlashCommands,
       Divider,
@@ -201,10 +207,49 @@ export default function App() {
                 <s>S</s>
               </button>
               <button 
+                className={editor.isActive('underline') ? 'is-active' : ''}
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+                title="下線"
+              >
+                <u>U</u>
+              </button>
+              <button 
                 className={editor.isActive('code') ? 'is-active' : ''}
                 onClick={() => editor.chain().focus().toggleCode().run()}
               >
                 {'</>'}
+              </button>
+              <div className="bubble-divider"></div>
+              {/* 文字色ボタン */}
+              <button 
+                onClick={() => editor.chain().focus().setColor('#ff0000').run()}
+                className={editor.isActive('textStyle', { color: '#ff0000' }) ? 'is-active' : ''}
+                title="赤色"
+                style={{ color: '#ff0000', fontWeight: 'bold' }}
+              >
+                A
+              </button>
+              <button 
+                onClick={() => editor.chain().focus().setColor('#0066cc').run()}
+                className={editor.isActive('textStyle', { color: '#0066cc' }) ? 'is-active' : ''}
+                title="青色"
+                style={{ color: '#0066cc', fontWeight: 'bold' }}
+              >
+                A
+              </button>
+              <button 
+                onClick={() => editor.chain().focus().setColor('#009900').run()}
+                className={editor.isActive('textStyle', { color: '#009900' }) ? 'is-active' : ''}
+                title="緑色"
+                style={{ color: '#009900', fontWeight: 'bold' }}
+              >
+                A
+              </button>
+              <button 
+                onClick={() => editor.chain().focus().unsetColor().run()}
+                title="色をリセット"
+              >
+                ×
               </button>
               <div className="bubble-divider"></div>
               <button 
@@ -270,29 +315,18 @@ export default function App() {
                 ～
               </button>
               <div className="bubble-divider"></div>
+              {/* 選択肢ボタン */}
               <button 
-                onClick={() => editor.chain().focus().insertChoiceButton({ text: '選択肢', style: 'normal' }).run()}
-                title="通常選択肢"
+                onClick={() => setChoiceEditorOpen(true)}
+                title="選択肢エディターを開く"
               >
-                選択肢
+                📝 選択肢
               </button>
               <button 
-                onClick={() => editor.chain().focus().insertChoiceButton({ text: '重要', style: 'important' }).run()}
-                title="重要選択肢"
+                onClick={() => editor.chain().focus().insertChoiceButton({ text: '続ける', style: 'normal' }).run()}
+                title="クイック選択肢"
               >
-                重要
-              </button>
-              <button 
-                onClick={() => editor.chain().focus().insertChoiceButton({ text: '危険', style: 'danger' }).run()}
-                title="危険選択肢"
-              >
-                危険
-              </button>
-              <button 
-                onClick={() => editor.chain().focus().insertChoiceButton({ text: '控えめ', style: 'subtle' }).run()}
-                title="控えめ選択肢"
-              >
-                控えめ
+                続ける
               </button>
             </div>
           </BubbleMenu>
@@ -310,6 +344,12 @@ export default function App() {
         <WikiPanel />
       </div>
       <ZenIndicator />
+      <HeadingNavigator editor={editor} zen={zen} />
+      <ChoiceButtonEditor 
+        editor={editor}
+        isOpen={choiceEditorOpen}
+        onClose={() => setChoiceEditorOpen(false)}
+      />
       <AutoWikiExtractor 
         content={getEditorPlainText()}
         onSuggestionsReady={(suggestions) => {
