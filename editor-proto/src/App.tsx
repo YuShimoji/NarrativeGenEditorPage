@@ -269,6 +269,31 @@ export default function App() {
               >
                 ～
               </button>
+              <div className="bubble-divider"></div>
+              <button 
+                onClick={() => editor.chain().focus().insertChoiceButton({ text: '選択肢', style: 'normal' }).run()}
+                title="通常選択肢"
+              >
+                選択肢
+              </button>
+              <button 
+                onClick={() => editor.chain().focus().insertChoiceButton({ text: '重要', style: 'important' }).run()}
+                title="重要選択肢"
+              >
+                重要
+              </button>
+              <button 
+                onClick={() => editor.chain().focus().insertChoiceButton({ text: '危険', style: 'danger' }).run()}
+                title="危険選択肢"
+              >
+                危険
+              </button>
+              <button 
+                onClick={() => editor.chain().focus().insertChoiceButton({ text: '控えめ', style: 'subtle' }).run()}
+                title="控えめ選択肢"
+              >
+                控えめ
+              </button>
             </div>
           </BubbleMenu>
         )}
