@@ -19,6 +19,8 @@ import { WikiPanel } from './components/WikiPanel'
 import { AutoWikiExtractor } from './components/AutoWikiExtractor'
 import { HeadingNavigator } from './components/HeadingNavigator'
 import { ChoiceButtonEditor } from './components/ChoiceButtonEditor'
+import { ImmersivePostingSystem } from './components/ImmersivePostingSystem'
+import { WikiEntryEditor } from './components/WikiEntryEditor'
 
 export default function App() {
   const setDoc = useEditorStore((s) => s.setDoc)
@@ -31,6 +33,9 @@ export default function App() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [choiceEditorOpen, setChoiceEditorOpen] = useState(false)
+  const [immersivePostingOpen, setImmersivePostingOpen] = useState(false)
+  const [entryEditorOpen, setEntryEditorOpen] = useState(false)
+  const [editingEntry, setEditingEntry] = useState<any>(null)
 
   const editor = useEditor({
     extensions: [
@@ -341,7 +346,13 @@ export default function App() {
         <Preview />
       </div>
       <div className="pane pane-wiki">
-        <WikiPanel />
+        <WikiPanel 
+          onImmersivePostingOpen={() => setImmersivePostingOpen(true)}
+          onEntryEditOpen={(entry) => {
+            setEditingEntry(entry || null)
+            setEntryEditorOpen(true)
+          }}
+        />
       </div>
       <ZenIndicator />
       <HeadingNavigator editor={editor} zen={zen} />
@@ -349,6 +360,18 @@ export default function App() {
         editor={editor}
         isOpen={choiceEditorOpen}
         onClose={() => setChoiceEditorOpen(false)}
+      />
+      <ImmersivePostingSystem 
+        isOpen={immersivePostingOpen}
+        onClose={() => setImmersivePostingOpen(false)}
+      />
+      <WikiEntryEditor 
+        entry={editingEntry}
+        isOpen={entryEditorOpen}
+        onClose={() => {
+          setEntryEditorOpen(false)
+          setEditingEntry(null)
+        }}
       />
       <AutoWikiExtractor 
         content={getEditorPlainText()}
