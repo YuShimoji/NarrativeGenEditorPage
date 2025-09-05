@@ -99,6 +99,26 @@ export interface Rumor {
   tags: string[]
 }
 
+// 投稿者の役割
+export enum AuthorRole {
+  CHARACTER = 'character',
+  ORGANIZATION = 'organization', 
+  ANONYMOUS = 'anonymous',
+  NARRATOR = 'narrator'
+}
+
+// 投稿スタイル
+export enum PostStyle {
+  FORMAL = 'formal',
+  CASUAL = 'casual',
+  DIARY = 'diary',
+  LETTER = 'letter',
+  REPORT = 'report',
+  GOSSIP = 'gossip',
+  POETRY = 'poetry',
+  TECHNICAL = 'technical'
+}
+
 export interface AuthorPost {
   id: string
   authorId: string
@@ -139,7 +159,7 @@ export interface ChoiceMetadata {
   lastModified: Date
 }
 
-export type ChoiceStyle = 'normal' | 'important' | 'dangerous' | 'subtle' | 'disabled'
+export type ChoiceStyle = 'normal' | 'important' | 'danger' | 'subtle'
 
 // 区切り線システムの型定義
 export interface Divider {
@@ -307,4 +327,4 @@ export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>
 export type OptionalFields<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
 // 既存のenumを再エクスポート
-export { EntryCategory, RelationType, AuthorRole, PostStyle } from '../store/useWikiStore'
+export { EntryCategory, RelationType } from '../store/useWikiStore'

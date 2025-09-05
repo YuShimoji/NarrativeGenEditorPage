@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Editor } from '@tiptap/react'
+import { Button, Input, Select, Toggle } from './atoms'
+import { ChoicePresetSelector } from './molecules/ChoicePresetSelector'
+import { useValidation } from '../hooks/useValidation'
+import { ChoiceStyle } from '../types'
 
 interface ChoiceButtonEditorProps {
   editor: Editor | null
@@ -21,27 +25,42 @@ export const ChoiceButtonEditor: React.FC<ChoiceButtonEditorProps> = ({
   initialData
 }) => {
   const [text, setText] = useState(initialData?.text || '選択肢')
-  const [style, setStyle] = useState(initialData?.style || 'normal')
+  const [style, setStyle] = useState<ChoiceStyle>((initialData?.style as ChoiceStyle) || 'normal')
   const [targetSceneId, setTargetSceneId] = useState(initialData?.targetSceneId || '')
   const [condition, setCondition] = useState(initialData?.condition || '')
   const [enabled, setEnabled] = useState(initialData?.enabled ?? true)
+  
+  const { validateChoiceText, getErrorMessage, isValid } = useValidation()
 
   useEffect(() => {
     if (initialData) {
       setText(initialData.text)
-      setStyle(initialData.style)
+      setStyle((initialData.style as ChoiceStyle) || 'normal')
       setTargetSceneId(initialData.targetSceneId)
       setCondition(initialData.condition)
       setEnabled(initialData.enabled)
     }
   }, [initialData])
+  
+  // 初期バリデーション
+  useEffect(() => {
+    if (text) {
+      validateChoiceText(text)
+    }
+  }, [text, validateChoiceText])
 
   const handleInsert = () => {
     if (!editor) return
+    
+    // バリデーション
+    const validation = validateChoiceText(text)
+    if (!validation.isValid) {
+      return
+    }
 
     editor.chain().focus().insertChoiceButton({
       text,
-      style: style as 'normal' | 'important' | 'danger' | 'subtle',
+      style,
       targetSceneId,
       condition,
       enabled
@@ -50,12 +69,12 @@ export const ChoiceButtonEditor: React.FC<ChoiceButtonEditorProps> = ({
     onClose()
   }
 
-  const handleQuickInsert = (quickStyle: string, quickText: string) => {
+  const handleQuickInsert = (quickStyle: ChoiceStyle, quickText: string) => {
     if (!editor) return
 
     editor.chain().focus().insertChoiceButton({
       text: quickText,
-      style: quickStyle as 'normal' | 'important' | 'danger' | 'subtle',
+      style: quickStyle,
       targetSceneId: '',
       condition: '',
       enabled: true
@@ -71,39 +90,17 @@ export const ChoiceButtonEditor: React.FC<ChoiceButtonEditorProps> = ({
       <div className="choice-editor">
         <div className="choice-editor-header">
           <h3>選択肢を追加</h3>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <Button variant="ghost" size="sm" onClick={onClose}>×</Button>
         </div>
 
         <div className="choice-editor-content">
-          {/* クイック挿入ボタン */}
-          <div className="quick-choices">
-            <h4>クイック挿入</h4>
-            <div className="quick-choice-buttons">
-              <button 
-                className="quick-choice normal"
-                onClick={() => handleQuickInsert('normal', '続ける')}
-              >
-                続ける
-              </button>
-              <button 
-                className="quick-choice important"
-                onClick={() => handleQuickInsert('important', '重要な決断')}
-              >
-                重要な決断
-              </button>
-              <button 
-                className="quick-choice danger"
-                onClick={() => handleQuickInsert('danger', '危険な選択')}
-              >
-                危険な選択
-              </button>
-              <button 
-                className="quick-choice subtle"
-                onClick={() => handleQuickInsert('subtle', '控えめに行動')}
-              >
-                控えめに行動
-              </button>
-            </div>
+          {/* プリセット選択 */}
+          <div className="preset-section">
+            <ChoicePresetSelector
+              selectedStyle={style}
+              onStyleChange={setStyle}
+              onTextChange={setText}
+            />
           </div>
 
           <div className="divider"></div>
@@ -112,64 +109,58 @@ export const ChoiceButtonEditor: React.FC<ChoiceButtonEditorProps> = ({
           <div className="custom-choice">
             <h4>カスタム設定</h4>
             
-            <div className="form-group">
-              <label>選択肢テキスト</label>
-              <input
-                type="text"
+            <div className="space-y-4">
+              <Input
+                label="選択肢テキスト"
                 value={text}
-                onChange={(e) => setText(e.target.value)}
+                onChange={(e) => {
+                  setText(e.target.value)
+                  validateChoiceText(e.target.value)
+                }}
                 placeholder="選択肢のテキストを入力"
+                error={getErrorMessage('choiceText')}
+                fullWidth
+                required
               />
-            </div>
 
-            <div className="form-group">
-              <label>スタイル</label>
-              <select value={style} onChange={(e) => setStyle(e.target.value)}>
-                <option value="normal">通常</option>
-                <option value="important">重要</option>
-                <option value="danger">危険</option>
-                <option value="subtle">控えめ</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>対象シーンID（オプション）</label>
-              <input
-                type="text"
+              <Input
+                label="対象シーンID（オプション）"
                 value={targetSceneId}
                 onChange={(e) => setTargetSceneId(e.target.value)}
                 placeholder="scene-1, scene-2 など"
+                helperText="リンク先のシーンIDを指定"
+                fullWidth
               />
-            </div>
 
-            <div className="form-group">
-              <label>表示条件（オプション）</label>
-              <input
-                type="text"
+              <Input
+                label="表示条件（オプション）"
                 value={condition}
                 onChange={(e) => setCondition(e.target.value)}
                 placeholder="例: hasItem('sword')"
+                helperText="条件式を入力（JavaScript形式）"
+                fullWidth
+              />
+
+              <Toggle
+                checked={enabled}
+                onChange={setEnabled}
+                label="選択肢を有効にする"
+                description="無効にすると選択できない状態で表示されます"
               />
             </div>
 
-            <div className="form-group checkbox-group">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={enabled}
-                  onChange={(e) => setEnabled(e.target.checked)}
-                />
-                選択肢を有効にする
-              </label>
-            </div>
-
-            <div className="form-actions">
-              <button className="btn-secondary" onClick={onClose}>
+            <div className="form-actions flex gap-2 mt-6">
+              <Button variant="secondary" onClick={onClose} fullWidth>
                 キャンセル
-              </button>
-              <button className="btn-primary" onClick={handleInsert}>
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={handleInsert}
+                disabled={!isValid('choiceText')}
+                fullWidth
+              >
                 挿入
-              </button>
+              </Button>
             </div>
           </div>
         </div>

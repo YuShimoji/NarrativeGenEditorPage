@@ -8,6 +8,7 @@ import TextStyle from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import { useEditorStore } from './store/useEditorStore'
 import { useSceneStore } from './store/useSceneStore'
+import { useUIStore } from './store/useUIStore'
 import { Preview } from './components/Preview'
 import { ChoiceButton } from './extensions/choiceButton'
 import { SlashCommands } from './extensions/slashCommands'
@@ -27,18 +28,17 @@ import { ReadingProgressTracker } from './components/ReadingProgressTracker'
 export default function App() {
   const setDoc = useEditorStore((s) => s.setDoc)
   const setHtml = useEditorStore((s) => s.setHtml)
-  const zen = useEditorStore((s) => s.zen)
-  const toggleZen = useEditorStore((s) => s.toggleZen)
+  const zen = useUIStore((s) => s.zen)
+  const toggleZen = useUIStore((s) => s.toggleZen)
+  const openModal = useUIStore((s) => s.openModal)
+  const closeModal = useUIStore((s) => s.closeModal)
+  const activeModal = useUIStore((s) => s.activeModal)
   
   const { getCurrentScene, updateScene } = useSceneStore()
   const currentScene = getCurrentScene()
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [isSaving, setIsSaving] = useState(false)
-  const [choiceEditorOpen, setChoiceEditorOpen] = useState(false)
-  const [immersivePostingOpen, setImmersivePostingOpen] = useState(false)
-  const [entryEditorOpen, setEntryEditorOpen] = useState(false)
   const [editingEntry, setEditingEntry] = useState<any>(null)
-  const [relatedEntriesOpen, setRelatedEntriesOpen] = useState(false)
   const [relatedTargetEntry, setRelatedTargetEntry] = useState<any>(null)
 
   const editor = useEditor({
@@ -326,7 +326,7 @@ export default function App() {
               <div className="bubble-divider"></div>
               {/* 選択肢ボタン */}
               <button 
-                onClick={() => setChoiceEditorOpen(true)}
+                onClick={() => openModal('choice-editor')}
                 title="選択肢エディターを開く"
               >
                 📝 選択肢
@@ -351,14 +351,14 @@ export default function App() {
       </div>
       <div className="pane pane-wiki">
         <WikiPanel 
-          onImmersivePostingOpen={() => setImmersivePostingOpen(true)}
+          onImmersivePostingOpen={() => openModal('immersive-posting')}
           onEntryEditOpen={(entry) => {
             setEditingEntry(entry || null)
-            setEntryEditorOpen(true)
+            openModal('entry-editor')
           }}
           onRelatedEntriesOpen={(entry) => {
             setRelatedTargetEntry(entry)
-            setRelatedEntriesOpen(true)
+            openModal('related-entries')
           }}
         />
       </div>
@@ -366,26 +366,26 @@ export default function App() {
       <HeadingNavigator editor={editor} zen={zen} />
       <ChoiceButtonEditor 
         editor={editor}
-        isOpen={choiceEditorOpen}
-        onClose={() => setChoiceEditorOpen(false)}
+        isOpen={activeModal === 'choice-editor'}
+        onClose={() => closeModal()}
       />
       <ImmersivePostingSystem 
-        isOpen={immersivePostingOpen}
-        onClose={() => setImmersivePostingOpen(false)}
+        isOpen={activeModal === 'immersive-posting'}
+        onClose={() => closeModal()}
       />
       <WikiEntryEditor 
         entry={editingEntry}
-        isOpen={entryEditorOpen}
+        isOpen={activeModal === 'entry-editor'}
         onClose={() => {
-          setEntryEditorOpen(false)
+          closeModal()
           setEditingEntry(null)
         }}
       />
       <RelatedEntriesGenerator 
         targetEntry={relatedTargetEntry}
-        isOpen={relatedEntriesOpen}
+        isOpen={activeModal === 'related-entries'}
         onClose={() => {
-          setRelatedEntriesOpen(false)
+          closeModal()
           setRelatedTargetEntry(null)
         }}
       />
