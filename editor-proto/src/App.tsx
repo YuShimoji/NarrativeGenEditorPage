@@ -41,6 +41,8 @@ export default function App() {
   const [relatedTargetEntry, setRelatedTargetEntry] = useState<any>(null)
   const [editingChoice, setEditingChoice] = useState<any>(null)
   const [previousSceneId, setPreviousSceneId] = useState<string | null>(null)
+  const [scenePanelCollapsed, setScenePanelCollapsed] = useState(false)
+  const [wikiPanelCollapsed, setWikiPanelCollapsed] = useState(false)
   const [contextMenu, setContextMenu] = useState<{
     visible: boolean
     position: { x: number; y: number }
@@ -316,8 +318,19 @@ export default function App() {
 
 
   return (
-    <div className={`app ${zen ? 'is-zen' : ''}`}>
-      <div className="pane pane-scene">
+    <div className={`app ${zen ? 'is-zen' : ''} ${scenePanelCollapsed ? 'scene-collapsed' : ''} ${wikiPanelCollapsed ? 'wiki-collapsed' : ''}`}>
+      {/* シーンパネル開閉ボタン */}
+      {!zen && (
+        <button 
+          className="panel-toggle scene-toggle"
+          onClick={() => setScenePanelCollapsed(!scenePanelCollapsed)}
+          title={scenePanelCollapsed ? 'シーンパネルを表示' : 'シーンパネルを非表示'}
+        >
+          {scenePanelCollapsed ? '📋' : '◀'}
+        </button>
+      )}
+      
+      <div className={`pane pane-scene ${scenePanelCollapsed ? 'collapsed' : ''}`}>
         <ScenePanel />
       </div>
       <div className="pane pane-editor">
@@ -501,7 +514,7 @@ export default function App() {
         <div className="pane-title">Preview</div>
         <Preview />
       </div>
-      <div className="pane pane-wiki">
+      <div className={`pane pane-wiki ${wikiPanelCollapsed ? 'collapsed' : ''}`}>
         <WikiPanel 
           onImmersivePostingOpen={() => openModal('immersive-posting')}
           onEntryEditOpen={(entry) => {
@@ -514,6 +527,17 @@ export default function App() {
           }}
         />
       </div>
+      
+      {/* Wikiパネル開閉ボタン */}
+      {!zen && (
+        <button 
+          className="panel-toggle wiki-toggle"
+          onClick={() => setWikiPanelCollapsed(!wikiPanelCollapsed)}
+          title={wikiPanelCollapsed ? 'Wikiパネルを表示' : 'Wikiパネルを非表示'}
+        >
+          {wikiPanelCollapsed ? '📚' : '▶'}
+        </button>
+      )}
       <ZenIndicator />
       
       {/* コンテキストメニュー */}

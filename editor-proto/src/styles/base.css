@@ -19,9 +19,39 @@ body {
 .app { 
   height: 100vh; 
   display: grid; 
-  grid-template-columns: 240px 1fr 0.6fr 280px; 
+  grid-template-columns: var(--scene-panel-width, 240px) 1fr 0.6fr var(--wiki-panel-width, 280px); 
   gap: 1px; 
   background: var(--bg);
+  transition: grid-template-columns 0.3s ease;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 1200px) {
+  .app {
+    grid-template-columns: var(--scene-panel-width, 200px) 1fr var(--wiki-panel-width, 240px);
+  }
+  .pane-preview { display: none; }
+}
+
+@media (max-width: 768px) {
+  .app {
+    grid-template-columns: var(--scene-panel-width, 0px) 1fr var(--wiki-panel-width, 0px);
+  }
+  .pane-scene.collapsed,
+  .pane-wiki.collapsed {
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+}
+
+/* パネル開閉状態 */
+.app.scene-collapsed {
+  --scene-panel-width: 0px;
+}
+
+.app.wiki-collapsed {
+  --wiki-panel-width: 0px;
 }
 
 .pane { 
@@ -29,6 +59,50 @@ body {
   overflow: auto; 
   background: var(--bg);
   border-right: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  transition: width 0.3s ease, min-width 0.3s ease;
+}
+
+.pane.collapsed {
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  border-right: none;
+}
+
+/* パネル開閉ボタン */
+.panel-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  background: rgba(20, 20, 20, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  color: var(--fg);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.panel-toggle:hover {
+  background: rgba(40, 40, 40, 0.9);
+  border-color: var(--accent);
+}
+
+.scene-toggle {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+}
+
+.wiki-toggle {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 100;
 }
 
 /* Zen mode: hide preview and use single column */
