@@ -93,7 +93,9 @@ export const ReadingProgressTracker: React.FC = () => {
     if (!currentScene) return 0
     
     const content = currentScene.content || ''
-    const totalWords = content.split(/\s+/).length
+    // contentが文字列でない場合の安全な処理
+    const contentStr = typeof content === 'string' ? content : String(content)
+    const totalWords = contentStr.trim() ? contentStr.split(/\s+/).length : 0
     const wordsRead = Math.round(totalWords * (scrollProgress / 100))
     
     return wordsRead

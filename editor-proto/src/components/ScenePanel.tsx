@@ -44,6 +44,28 @@ export const ScenePanel: React.FC = () => {
     }
   }
 
+  // ドラッグ開始処理
+  const handleDragStart = (e: React.DragEvent, scene: any) => {
+    e.stopPropagation()
+    
+    // ドラッグデータを設定
+    const dragData = {
+      type: 'scene',
+      id: scene.id,
+      title: scene.title
+    }
+    
+    e.dataTransfer.setData('text/plain', JSON.stringify(dragData))
+    e.dataTransfer.setData('text/scene-id', scene.id)
+    e.dataTransfer.effectAllowed = 'copy'
+    
+    // ビジュアルフィードバック
+    const dragImage = e.currentTarget.cloneNode(true) as HTMLElement
+    dragImage.style.transform = 'rotate(5deg)'
+    dragImage.style.opacity = '0.8'
+    e.dataTransfer.setDragImage(dragImage, 20, 20)
+  }
+
   return (
     <div className="scene-panel">
       <div className="scene-panel-header">
@@ -61,12 +83,16 @@ export const ScenePanel: React.FC = () => {
         {scenes.map((scene, index) => (
           <div 
             key={scene.id}
-            className={`scene-item ${scene.id === currentSceneId ? 'active' : ''}`}
+            className={`scene-item ${scene.id === currentSceneId ? 'active' : ''} draggable-scene`}
             onClick={() => setCurrentScene(scene.id)}
+            draggable={true}
+            onDragStart={(e) => handleDragStart(e, scene)}
+            title={`ドラッグして選択肢にリンク設定可能: ${scene.title}`}
           >
             <div className="scene-order">{index + 1}</div>
             
             <div className="scene-content">
+              <div className="drag-handle" title="ドラッグハンドル">⋮⋮</div>
               {editingId === scene.id ? (
                 <div className="scene-edit">
                   <input

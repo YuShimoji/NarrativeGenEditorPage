@@ -14,16 +14,15 @@ import { ChoiceButton } from './extensions/choiceButton'
 import { SlashCommands } from './extensions/slashCommands'
 import { Divider } from './extensions/divider'
 import { ZenIndicator } from './components/ZenIndicator'
-import { SlashHints } from './components/SlashHints'
-import { ScenePanel } from './components/ScenePanel'
+import { ChoiceButtonEditor } from './components/ChoiceButtonEditor'
 import { WikiPanel } from './components/WikiPanel'
 import { AutoWikiExtractor } from './components/AutoWikiExtractor'
-import { HeadingNavigator } from './components/HeadingNavigator'
-import { ChoiceButtonEditor } from './components/ChoiceButtonEditor'
+import { ReadingProgressTracker } from './components/ReadingProgressTracker'
+import { ContextMenu, ContextMenuItem } from './components/molecules/ContextMenu'
 import { ImmersivePostingSystem } from './components/ImmersivePostingSystem'
 import { WikiEntryEditor } from './components/WikiEntryEditor'
 import { RelatedEntriesGenerator } from './components/RelatedEntriesGenerator'
-import { ReadingProgressTracker } from './components/ReadingProgressTracker'
+import { ScenePanel } from './components/ScenePanel'
 
 export default function App() {
   const setDoc = useEditorStore((s) => s.setDoc)
@@ -40,6 +39,16 @@ export default function App() {
   const [isSaving, setIsSaving] = useState(false)
   const [editingEntry, setEditingEntry] = useState<any>(null)
   const [relatedTargetEntry, setRelatedTargetEntry] = useState<any>(null)
+  const [editingChoice, setEditingChoice] = useState<any>(null)
+  const [previousSceneId, setPreviousSceneId] = useState<string | null>(null)
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean
+    position: { x: number; y: number }
+    targetElement?: HTMLElement
+  }>({
+    visible: false,
+    position: { x: 0, y: 0 }
+  })
 
   const editor = useEditor({
     extensions: [
@@ -72,8 +81,21 @@ export default function App() {
   // シーン切替時にエディタ内容を更新
   useEffect(() => {
     if (!editor || !currentScene) return
-    editor.commands.setContent(currentScene.content)
-  }, [editor, currentScene?.id])
+    
+    // 前のシーンがある場合、その内容を保存
+    if (previousSceneId && previousSceneId !== currentScene.id) {
+      const currentContent = editor.getJSON()
+      updateScene(previousSceneId, { content: currentContent })
+    }
+    
+    // 新しいシーンの内容をエディターに設定
+    if (currentScene.content) {
+      editor.commands.setContent(currentScene.content)
+    }
+    
+    // 現在のシーンIDを記録
+    setPreviousSceneId(currentScene.id)
+  }, [editor, currentScene?.id, updateScene, previousSceneId])
 
   useEffect(() => {
     if (!editor) return
@@ -108,6 +130,132 @@ export default function App() {
     editor.on('update', handler)
     return () => { editor.off('update', handler) }
   }, [editor, setDoc, setHtml, currentScene, updateScene])
+
+  // 選択肢ボタンクリック処理
+  useEffect(() => {
+    // 選択肢ボタンのクリック編集機能
+    const handleChoiceButtonClick = (event: Event) => {
+      const target = event.target as HTMLElement
+      if (target.classList.contains('choice-button') && target.classList.contains('editable')) {
+        event.preventDefault()
+        event.stopPropagation()
+        
+        // ボタンの属性から現在の値を取得
+        const text = target.getAttribute('data-text') || '選択肢'
+        const style = target.getAttribute('data-style') || 'normal'
+        const targetSceneId = target.getAttribute('data-target') || ''
+        const condition = target.getAttribute('data-condition') || ''
+        const enabled = target.getAttribute('data-enabled') !== 'false'
+        
+        // 編集データを設定
+        setEditingChoice({
+          text,
+          style,
+          targetSceneId,
+          condition,
+          enabled
+        })
+        
+        // 編集モーダルを開く
+        openModal('choice-editor')
+      }
+    }
+
+    // 選択肢ボタンの右クリックコンテキストメニュー
+    const handleChoiceButtonRightClick = (event: Event) => {
+      const mouseEvent = event as MouseEvent
+      const target = mouseEvent.target as HTMLElement
+      
+      if (target.classList.contains('choice-button') && target.classList.contains('editable')) {
+        mouseEvent.preventDefault()
+        mouseEvent.stopPropagation()
+        
+        setContextMenu({
+          visible: true,
+          position: { x: mouseEvent.clientX, y: mouseEvent.clientY },
+          targetElement: target
+        })
+      }
+    }
+
+
+    // エディター要素にイベントリスナーを追加
+    if (editor) {
+      const editorElement = editor.view.dom
+      editorElement.addEventListener('click', handleChoiceButtonClick)
+      editorElement.addEventListener('contextmenu', handleChoiceButtonRightClick)
+      
+      return () => {
+        editorElement.removeEventListener('click', handleChoiceButtonClick)
+        editorElement.removeEventListener('contextmenu', handleChoiceButtonRightClick)
+      }
+    }
+  }, [editor, openModal])
+
+  // コンテキストメニューのアイテム
+  const getContextMenuItems = (): ContextMenuItem[] => {
+    if (!contextMenu.targetElement) return []
+    
+    const target = contextMenu.targetElement
+    const text = target.getAttribute('data-text') || '選択肢'
+    
+    return [
+      {
+        id: 'edit',
+        label: '編集',
+        icon: '✏️',
+        action: () => {
+          // ボタンの属性から現在の値を取得
+          const style = target.getAttribute('data-style') || 'normal'
+          const targetSceneId = target.getAttribute('data-target') || ''
+          const condition = target.getAttribute('data-condition') || ''
+          const enabled = target.getAttribute('data-enabled') !== 'false'
+          
+          setEditingChoice({
+            text,
+            style,
+            targetSceneId,
+            condition,
+            enabled
+          })
+          
+          openModal('choice-editor')
+        }
+      },
+      {
+        id: 'duplicate',
+        label: '複製',
+        icon: '📋',
+        action: () => {
+          const style = target.getAttribute('data-style') || 'normal'
+          const targetSceneId = target.getAttribute('data-target') || ''
+          const condition = target.getAttribute('data-condition') || ''
+          const enabled = target.getAttribute('data-enabled') !== 'false'
+          
+          // 複製として新しい選択肢を挿入
+          editor?.chain().focus().insertChoiceButton({
+            text: `${text} (コピー)`,
+            style: style as 'normal' | 'important' | 'danger' | 'subtle',
+            targetSceneId,
+            condition,
+            enabled
+          }).run()
+        }
+      },
+      {
+        id: 'delete',
+        label: '削除',
+        icon: '🗑️',
+        danger: true,
+        action: () => {
+          if (window.confirm(`選択肢「${text}」を削除しますか？`)) {
+            // 選択肢ボタンを削除
+            target.remove()
+          }
+        }
+      }
+    ]
+  }
 
   const getEditorPlainText = (): string => {
     if (!editor) return ''
@@ -191,15 +339,20 @@ export default function App() {
           </div>
         </div>
         {editor && (
-          <BubbleMenu
-            editor={editor}
-            tippyOptions={{ duration: 100 }}
-            shouldShow={({ editor: _ed }) => !zen}
-          >
+          <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
             <div className="bubble">
+              <button 
+                className="bubble-close"
+                onClick={() => editor.commands.blur()}
+                title="ツールバーを閉じる"
+              >
+                ×
+              </button>
+              <div className="bubble-divider"></div>
               <button 
                 className={editor.isActive('bold') ? 'is-active' : ''}
                 onClick={() => editor.chain().focus().toggleBold().run()}
+                title="太字"
               >
                 <strong>B</strong>
               </button>
@@ -342,7 +495,6 @@ export default function App() {
         )}
         <div className="editor-wrap">
           <EditorContent editor={editor} />
-          <SlashHints editor={editor} zen={zen} />
         </div>
       </div>
       <div className="pane pane-preview">
@@ -363,11 +515,23 @@ export default function App() {
         />
       </div>
       <ZenIndicator />
-      <HeadingNavigator editor={editor} zen={zen} />
+      
+      {/* コンテキストメニュー */}
+      <ContextMenu
+        items={getContextMenuItems()}
+        position={contextMenu.position}
+        visible={contextMenu.visible}
+        onClose={() => setContextMenu({ ...contextMenu, visible: false })}
+      />
       <ChoiceButtonEditor 
         editor={editor}
         isOpen={activeModal === 'choice-editor'}
-        onClose={() => closeModal()}
+        editingExisting={!!editingChoice}
+        initialData={editingChoice}
+        onClose={() => {
+          closeModal()
+          setEditingChoice(null)
+        }}
       />
       <ImmersivePostingSystem 
         isOpen={activeModal === 'immersive-posting'}

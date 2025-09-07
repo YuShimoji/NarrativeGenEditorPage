@@ -40,9 +40,23 @@ function renderNode(node: PMNode, key?: React.Key): React.ReactNode {
       return <li key={key}>{node.content?.map((c, i) => renderNode(c, i))}</li>
     case 'choiceButton': {
       const text = node.attrs?.text ?? '選択肢'
+      const style = node.attrs?.style ?? 'normal'
       const target = node.attrs?.targetSceneId ?? ''
+      const condition = node.attrs?.condition ?? ''
+      const enabled = node.attrs?.enabled ?? true
+      
       return (
-        <button key={key} data-choice-button data-target={target} style={{ padding: '6px 10px', margin: '6px 0' }}>
+        <button 
+          key={key} 
+          className={`choice-button choice-${style} ${enabled ? '' : 'disabled'}`}
+          data-choice-button 
+          data-target={target}
+          data-text={text}
+          data-style={style}
+          data-condition={condition}
+          data-enabled={enabled}
+          disabled={!enabled}
+        >
           {text}
         </button>
       )

@@ -48,6 +48,18 @@
   color: var(--accent);
 }
 
+.bubble-close {
+  background: rgba(244, 67, 54, 0.1) !important;
+  color: #f44336 !important;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.bubble-close:hover {
+  background: rgba(244, 67, 54, 0.2) !important;
+  color: #ff5252 !important;
+}
+
 .bubble button.is-active,
 .bubble-menu button.is-active {
   background: var(--accent);
@@ -1631,4 +1643,259 @@ input[type="range"]::-moz-range-thumb {
 .zen-toggle-hidden:hover .zen-toggle-hint {
   transform: scale(1.2);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Drag & Drop Styles */
+.draggable-scene {
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.draggable-scene:active {
+  cursor: grabbing;
+}
+
+.draggable-scene:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.drag-handle {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  cursor: grab;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.draggable-scene:hover .drag-handle {
+  color: var(--accent);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Scene Selector Drop Zone */
+.scene-selector-drop-zone {
+  border: 2px dashed rgba(76, 175, 80, 0.3);
+  background: rgba(76, 175, 80, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  transition: all 0.2s ease;
+  margin: 8px 0;
+}
+
+.scene-selector-drop-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(76, 175, 80, 0.1);
+  color: var(--accent);
+  transform: scale(1.02);
+}
+
+.scene-selector-drop-zone .drop-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Choice Button Editing Indicator */
+.choice-button.editable {
+  position: relative;
+  cursor: pointer;
+}
+
+.choice-button.editable::after {
+  content: '✏️';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.choice-button.editable:hover::after {
+  opacity: 1;
+}
+
+/* Modal Backdrop Fix for Drag & Drop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 40;
+  pointer-events: none; /* 背景はクリックを通す */
+}
+
+.modal-backdrop.drag-enabled {
+  pointer-events: none; /* ドラッグ中は完全に無効化 */
+}
+
+.modal-content {
+  position: relative;
+  z-index: 50;
+  pointer-events: auto; /* モーダル内容のみクリック可能 */
+}
+
+/* Scene Panel - ドラッグ中の特別処理 */
+.scene-panel.drag-source-active {
+  z-index: 60; /* モーダルより上に表示 */
+  pointer-events: auto;
+}
+
+.draggable-scene.dragging {
+  z-index: 70;
+  pointer-events: auto;
+}
+
+/* Context Menu */
+.context-menu {
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  padding: 4px;
+  min-width: 160px;
+  animation: contextMenuFadeIn 0.15s ease-out;
+}
+
+@keyframes contextMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.context-menu-item:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent);
+}
+
+.context-menu-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.context-menu-item.danger:hover:not(.disabled) {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+.context-menu-icon {
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.context-menu-label {
+  flex: 1;
+}
+
+/* Modal Header Actions */
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.help-toggle {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 50%;
+  color: var(--accent);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.help-toggle:hover {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: var(--accent);
+  transform: scale(1.1);
+}
+
+/* Choice Button Editor Improvements */
+.choice-button-editor {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.preset-section {
+  margin-bottom: 16px;
+}
+
+.custom-choice h4 {
+  margin-bottom: 16px;
+  color: var(--fg);
+  font-size: 16px;
+}
+
+/* Improved Modal Backdrop for Better UX */
+.modal-overlay.open {
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-container {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

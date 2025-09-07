@@ -12,6 +12,7 @@ declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     choiceButton: {
       insertChoiceButton: (attrs: Partial<ChoiceButtonAttrs>) => ReturnType
+      updateChoiceButton: (attrs: Partial<ChoiceButtonAttrs>) => ReturnType
     }
   }
 }
@@ -64,8 +65,9 @@ export const ChoiceButton = Node.create({
       'button', 
       mergeAttributes(HTMLAttributes, { 
         'data-choice-button': 'true',
-        'class': `choice-button choice-${style} ${enabled ? '' : 'choice-disabled'}`,
-        'disabled': enabled ? null : 'disabled'
+        'class': `choice-button choice-${style} ${enabled ? '' : 'choice-disabled'} editable-choice`,
+        'disabled': enabled ? null : 'disabled',
+        'title': 'クリックして編集'
       }), 
       text
     ]
@@ -87,6 +89,19 @@ export const ChoiceButton = Node.create({
               } 
             })
             .run(),
+      updateChoiceButton:
+        (attrs) => ({ tr, state }) => {
+          const { selection } = state
+          const node = state.doc.nodeAt(selection.from)
+          if (node && node.type.name === this.name) {
+            tr.setNodeMarkup(selection.from, undefined, {
+              ...node.attrs,
+              ...attrs
+            })
+            return true
+          }
+          return false
+        },
     }
   },
 })

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Editor } from '@tiptap/react'
 import { Button, Input, Select, Toggle } from './atoms'
 import { ChoicePresetSelector } from './molecules/ChoicePresetSelector'
+import { SceneSelector } from './molecules/SceneSelector'
 import { useValidation } from '../hooks/useValidation'
 import { ChoiceStyle } from '../types'
 
@@ -9,6 +10,7 @@ interface ChoiceButtonEditorProps {
   editor: Editor | null
   isOpen: boolean
   onClose: () => void
+  editingExisting?: boolean
   initialData?: {
     text: string
     style: string
@@ -22,6 +24,7 @@ export const ChoiceButtonEditor: React.FC<ChoiceButtonEditorProps> = ({
   editor,
   isOpen,
   onClose,
+  editingExisting = false,
   initialData
 }) => {
   const [text, setText] = useState(initialData?.text || '選択肢')
@@ -58,13 +61,25 @@ export const ChoiceButtonEditor: React.FC<ChoiceButtonEditorProps> = ({
       return
     }
 
-    editor.chain().focus().insertChoiceButton({
-      text,
-      style,
-      targetSceneId,
-      condition,
-      enabled
-    }).run()
+    if (editingExisting) {
+      // 既存ボタンの更新
+      editor.chain().focus().updateChoiceButton({
+        text,
+        style,
+        targetSceneId,
+        condition,
+        enabled
+      }).run()
+    } else {
+      // 新規ボタンの挿入
+      editor.chain().focus().insertChoiceButton({
+        text,
+        style,
+        targetSceneId,
+        condition,
+        enabled
+      }).run()
+    }
 
     onClose()
   }
@@ -86,14 +101,24 @@ export const ChoiceButtonEditor: React.FC<ChoiceButtonEditorProps> = ({
   if (!isOpen) return null
 
   return (
-    <div className="choice-editor-overlay">
-      <div className="choice-editor">
-        <div className="choice-editor-header">
-          <h3>選択肢を追加</h3>
-          <Button variant="ghost" size="sm" onClick={onClose}>×</Button>
-        </div>
+    <div className={`modal-overlay ${isOpen ? 'open' : ''}`}>
+      <div className="modal-backdrop"></div>
+      <div className="modal-container">
+        <div className="modal-content choice-button-editor">
+          <div className="modal-header">
+            <h2>{editingExisting ? '選択肢を編集' : '選択肢を追加'}</h2>
+            <div className="modal-header-actions">
+              <button 
+                className="help-toggle"
+                onClick={() => window.open('/docs/choice-editor-help.html', '_blank')}
+                title="ヘルプを開く"
+              >
+                ?
+              </button>
+              <button className="modal-close" onClick={onClose}>×</button>
+            </div>
+          </div>
 
-        <div className="choice-editor-content">
           {/* プリセット選択 */}
           <div className="preset-section">
             <ChoicePresetSelector
@@ -123,13 +148,11 @@ export const ChoiceButtonEditor: React.FC<ChoiceButtonEditorProps> = ({
                 required
               />
 
-              <Input
-                label="対象シーンID（オプション）"
-                value={targetSceneId}
-                onChange={(e) => setTargetSceneId(e.target.value)}
-                placeholder="scene-1, scene-2 など"
-                helperText="リンク先のシーンIDを指定"
-                fullWidth
+              <SceneSelector
+                selectedSceneId={targetSceneId}
+                onSceneSelect={setTargetSceneId}
+                label="リンク先シーン（オプション）"
+                allowDragDrop={true}
               />
 
               <Input
@@ -159,7 +182,7 @@ export const ChoiceButtonEditor: React.FC<ChoiceButtonEditorProps> = ({
                 disabled={!isValid('choiceText')}
                 fullWidth
               >
-                挿入
+                {editingExisting ? '更新' : '挿入'}
               </Button>
             </div>
           </div>
